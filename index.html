@@ -6,1090 +6,933 @@
 <title>Kyawngar • ပိုက်ဆံရှာမည်</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-:root{
-  --bg:#09090f;--bg2:#111118;--bg3:#1a1a24;--bg4:#22222e;
-  --gold:#f5c518;--gold2:#e8b000;--gold3:#ffd966;
-  --green:#22c55e;--red:#ef4444;--blue:#3b82f6;
-  --text:#f0f0f0;--text2:#a0a0b8;--text3:#6b6b88;
-  --border:rgba(245,197,24,0.15);--border2:rgba(255,255,255,0.06);
-  --font:'Noto Sans Myanmar',system-ui,sans-serif;
-}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden;}
-body{display:flex;flex-direction:column;}
-
-/* ====== BG Glow ====== */
-.bg-glow{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
-.bg-glow::before{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(245,197,24,.08),transparent 70%);top:-100px;left:-150px;border-radius:50%;}
-.bg-glow::after{content:'';position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(245,197,24,.06),transparent 70%);bottom:-100px;right:-100px;border-radius:50%;}
-
-/* ====== Layout ====== */
-.app{position:relative;z-index:1;display:flex;flex-direction:column;height:100vh;max-width:430px;margin:0 auto;}
-.header{padding:14px 16px 10px;background:var(--bg2);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.header-brand{display:flex;align-items:center;gap:10px;}
-.header-logo{width:36px;height:36px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 12px rgba(245,197,24,.3);}
-.header-name{font-size:16px;font-weight:700;color:var(--gold);}
-.header-sub{font-size:11px;color:var(--text3);}
-.header-balance{display:flex;align-items:center;gap:6px;background:rgba(245,197,24,.08);border:1px solid var(--border);border-radius:20px;padding:6px 12px;}
-.header-balance-num{font-size:14px;font-weight:700;color:var(--gold);}
-
-/* ====== Pages ====== */
-.pages{flex:1;overflow:hidden;position:relative;}
-.page{position:absolute;inset:0;overflow-y:auto;padding:16px;display:none;flex-direction:column;gap:12px;padding-bottom:80px;}
-.page.active{display:flex;}
-.page::-webkit-scrollbar{width:3px;}
-.page::-webkit-scrollbar-thumb{background:rgba(245,197,24,.2);border-radius:3px;}
-
-/* ====== Bottom Nav ====== */
-.bottom-nav{height:60px;background:var(--bg2);border-top:1px solid var(--border2);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom);}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 4px;cursor:pointer;border:none;background:none;color:var(--text3);transition:color .2s;-webkit-tap-highlight-color:transparent;}
-.nav-btn.active{color:var(--gold);}
-.nav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
-.nav-btn span{font-size:9px;font-family:var(--font);}
-.nav-btn.active svg{filter:drop-shadow(0 0 4px rgba(245,197,24,.5));}
-
-/* ====== Cards ====== */
-.card{background:var(--bg3);border:1px solid var(--border2);border-radius:16px;padding:16px;position:relative;overflow:hidden;}
-.card-gold{border-color:var(--border);}
-.card h3{font-size:14px;font-weight:700;margin-bottom:10px;color:var(--text);}
-
-/* ====== Home Page ====== */
-.balance-card{background:linear-gradient(135deg,var(--bg3),var(--bg4));border:1px solid var(--border);}
-.balance-card .amount{font-size:32px;font-weight:700;color:var(--gold);text-shadow:0 0 20px rgba(245,197,24,.3);margin:4px 0;}
-.balance-card .amount-label{font-size:11px;color:var(--text3);}
-.balance-card .collect-btn{width:100%;margin-top:12px;padding:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#000;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font);transition:opacity .2s;}
-.balance-card .collect-btn:active{opacity:.8;}
-.balance-card .collect-btn:disabled{opacity:.5;cursor:not-allowed;}
-
-.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.stat-card{background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:12px;}
-.stat-card .stat-icon{font-size:20px;margin-bottom:4px;}
-.stat-card .stat-num{font-size:20px;font-weight:700;color:var(--gold);}
-.stat-card .stat-label{font-size:10px;color:var(--text3);margin-top:2px;}
-
-.invite-card{background:linear-gradient(135deg,rgba(245,197,24,.06),rgba(245,197,24,.02));border:1px solid var(--border);border-radius:14px;padding:14px;}
-.invite-card p{font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.5;}
-.copy-btn{width:100%;padding:10px;background:rgba(245,197,24,.1);border:1px solid var(--border);border-radius:10px;color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:background .2s;}
-.copy-btn:active{background:rgba(245,197,24,.2);}
-
-/* ====== Earn Page (Mining) ====== */
-.earn-header{background:linear-gradient(135deg,rgba(245,197,24,.1),rgba(245,197,24,.04));border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center;}
-.earn-header h2{font-size:16px;font-weight:700;color:var(--gold);margin-bottom:4px;}
-.earn-header p{font-size:11px;color:var(--text3);}
-
-.miners-section h3{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
-
-/* Miner Card */
-.miner-card{background:var(--bg3);border:1px solid var(--border2);border-radius:16px;padding:14px;position:relative;overflow:hidden;transition:border-color .3s;}
-.miner-card.active{border-color:rgba(34,197,94,.4);background:linear-gradient(135deg,rgba(34,197,94,.04),var(--bg3));}
-.miner-card.pending{border-color:rgba(245,197,24,.3);}
-.miner-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
-.miner-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-.miner-icon.idle{background:var(--bg4);}
-.miner-icon.active-bg{background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(34,197,94,.05));animation:minerGlow 2s infinite alternate;}
-.miner-icon.pending-bg{background:linear-gradient(135deg,rgba(245,197,24,.15),rgba(245,197,24,.05));}
-@keyframes minerGlow{from{box-shadow:0 0 0 rgba(34,197,94,.2);}to{box-shadow:0 0 12px rgba(34,197,94,.4);}}
-.miner-info{flex:1;}
-.miner-name{font-size:13px;font-weight:700;}
-.miner-status-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:20px;margin-top:3px;}
-.badge-idle{background:var(--bg4);color:var(--text3);}
-.badge-pending{background:rgba(245,197,24,.1);color:var(--gold);border:1px solid rgba(245,197,24,.3);}
-.badge-active{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3);}
-.badge-rejected{background:rgba(239,68,68,.1);color:var(--red);}
-.badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
-.badge-dot.pulse{animation:dotPulse 1s infinite;}
-@keyframes dotPulse{0%,100%{opacity:1;}50%{opacity:.3;}}
-
-/* Mining Animation */
-.mining-live{margin:10px 0;padding:10px;background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.1);border-radius:10px;text-align:center;}
-.pickaxe-row{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px;}
-.pickaxe{font-size:20px;animation:swing .6s ease-in-out infinite alternate;transform-origin:bottom right;}
-@keyframes swing{from{transform:rotate(-30deg);}to{transform:rotate(10deg);}}
-.rock{font-size:18px;animation:shake .6s ease-in-out infinite;}
-@keyframes shake{0%,100%{transform:translate(0,0);}25%{transform:translate(-1px,1px);}75%{transform:translate(1px,-1px);}}
-.mining-rate{font-size:10px;color:var(--green);}
-.mining-earn{font-size:16px;font-weight:700;color:var(--green);margin-bottom:2px;}
-
-/* Miner earnings progress */
-.earn-bar-wrap{margin:8px 0;}
-.earn-bar-label{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:4px;}
-.earn-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
-.earn-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),#4ade80);border-radius:2px;transition:width 1s linear;}
-
-.miner-btn{width:100%;padding:10px;border-radius:10px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;}
-.miner-btn-buy{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;}
-.miner-btn-buy:active{opacity:.8;}
-.miner-btn-pending{background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.3);color:var(--gold);cursor:default;}
-.miner-btn-collect{background:linear-gradient(135deg,var(--green),#16a34a);color:#fff;}
-.miner-btn-collect:active{opacity:.8;}
-.miner-btn-collect:disabled{background:var(--bg4);color:var(--text3);cursor:not-allowed;}
-.miner-btn-rejected{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:var(--red);cursor:default;}
-
-/* Tasks Section */
-.tasks-section{margin-top:4px;}
-.tasks-section h3{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
-.tasks-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.task-card{background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;transition:border-color .2s;}
-.task-card.available{border-color:rgba(245,197,24,.25);}
-.task-icon{font-size:24px;}
-.task-name{font-size:12px;font-weight:600;}
-.task-reward-text{font-size:11px;color:var(--gold);}
-.task-cooldown{font-size:10px;color:var(--text3);font-variant-numeric:tabular-nums;}
-.task-btn{width:100%;padding:8px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;}
-.task-btn-watch{background:linear-gradient(135deg,rgba(245,197,24,.15),rgba(245,197,24,.05));border:1px solid var(--border);color:var(--gold);}
-.task-btn-watch:active{background:rgba(245,197,24,.25);}
-.task-btn-cooldown{background:var(--bg4);color:var(--text3);cursor:not-allowed;}
-.task-btn-loading{background:rgba(245,197,24,.08);color:var(--gold);cursor:wait;opacity:.7;}
-
-/* ====== Withdraw Page ====== */
-.notice-box{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:12px;padding:12px;display:flex;gap:8px;}
-.notice-icon{font-size:18px;flex-shrink:0;}
-.notice-text{font-size:11px;color:var(--text2);line-height:1.6;}
-.notice-text strong{color:var(--blue);}
-
-.wd-form{display:flex;flex-direction:column;gap:12px;}
-.form-label{font-size:12px;color:var(--text2);margin-bottom:6px;display:block;}
-.form-input{width:100%;padding:11px 14px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:14px;font-family:var(--font);outline:none;transition:border-color .2s;}
-.form-input:focus{border-color:var(--border);}
-.form-input::placeholder{color:var(--text3);}
-
-.method-tabs{display:flex;gap:8px;}
-.method-tab{flex:1;padding:10px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;text-align:center;cursor:pointer;transition:all .2s;font-size:12px;font-weight:600;color:var(--text2);}
-.method-tab.selected{background:rgba(245,197,24,.1);border-color:var(--border);color:var(--gold);}
-.method-tab-icon{font-size:18px;display:block;margin-bottom:4px;}
-
-.wd-submit{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:12px;color:#000;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font);transition:opacity .2s;}
-.wd-submit:active{opacity:.8;}
-.wd-submit:disabled{opacity:.5;cursor:not-allowed;}
-
-.wd-balance-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:rgba(245,197,24,.06);border:1px solid var(--border);border-radius:10px;}
-.wd-balance-row .label{font-size:11px;color:var(--text3);}
-.wd-balance-row .value{font-size:15px;font-weight:700;color:var(--gold);}
-
-/* ====== Invites Page ====== */
-.invite-hero{background:linear-gradient(135deg,rgba(245,197,24,.1),rgba(245,197,24,.04));border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center;}
-.invite-hero .big-num{font-size:40px;font-weight:700;color:var(--gold);line-height:1;}
-.invite-hero .big-label{font-size:11px;color:var(--text3);margin-top:4px;}
-.invite-hero .reward-info{margin-top:8px;font-size:12px;color:var(--text2);}
-
-.invite-list{display:flex;flex-direction:column;gap:8px;}
-.invite-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;}
-.invite-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#000;flex-shrink:0;}
-.invite-name{flex:1;font-size:13px;font-weight:600;}
-.invite-date{font-size:10px;color:var(--text3);}
-.invite-reward-badge{font-size:11px;font-weight:700;color:var(--green);background:rgba(34,197,94,.1);padding:3px 8px;border-radius:20px;}
-
-.empty-state{text-align:center;padding:30px 16px;color:var(--text3);}
-.empty-state .empty-icon{font-size:36px;margin-bottom:8px;}
-.empty-state p{font-size:12px;line-height:1.6;}
-
-/* ====== Account Page ====== */
-.profile-card{background:var(--bg3);border:1px solid var(--border2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px;}
-.profile-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#000;flex-shrink:0;}
-.profile-name{font-size:16px;font-weight:700;}
-.profile-id{font-size:11px;color:var(--text3);margin-top:2px;}
-
-.account-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.acstat{background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:14px;text-align:center;}
-.acstat .ac-val{font-size:22px;font-weight:700;color:var(--gold);margin:4px 0;}
-.acstat .ac-label{font-size:10px;color:var(--text3);}
-.acstat .ac-icon{font-size:20px;}
-
-.referral-card{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:14px;}
-.referral-card h3{font-size:13px;font-weight:700;margin-bottom:8px;}
-.ref-code-box{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg4);border-radius:10px;margin-bottom:10px;}
-.ref-code{flex:1;font-size:13px;font-weight:600;color:var(--gold);word-break:break-all;}
-.ref-copy{padding:5px 10px;background:rgba(245,197,24,.1);border:1px solid var(--border);border-radius:8px;color:var(--gold);font-size:11px;cursor:pointer;white-space:nowrap;font-family:var(--font);}
-
-/* ====== Toast ====== */
-.toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);border-radius:100px;padding:9px 18px;color:var(--text);font-size:12px;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-.toast.success{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.3);color:var(--green);}
-.toast.error{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.3);color:var(--red);}
-.toast.gold{background:rgba(245,197,24,.15);border-color:rgba(245,197,24,.3);color:var(--gold);}
-
-/* ====== Loading Spinner ====== */
-.spinner{width:20px;height:20px;border:2px solid rgba(245,197,24,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite;display:inline-block;}
-@keyframes spin{to{transform:rotate(360deg);}}
-
-/* ====== Ad Overlay ====== */
-.ad-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:8000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
-.ad-overlay.show{display:flex;}
-.ad-circle{width:80px;height:80px;border-radius:50%;border:3px solid var(--gold);background:rgba(245,197,24,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.ad-circle .cd{font-size:26px;font-weight:700;color:var(--gold);}
-.ad-circle .sec-lbl{font-size:10px;color:var(--text3);}
-.ad-title{font-size:15px;font-weight:700;color:var(--gold);}
-.ad-sub{font-size:12px;color:var(--text3);}
-
-/* ====== Purchase Modal ====== */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:7000;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
-.modal-overlay.show{display:flex;}
-.modal{background:var(--bg2);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:430px;border-top:1px solid var(--border2);}
-.modal-title{font-size:16px;font-weight:700;margin-bottom:4px;}
-.modal-sub{font-size:12px;color:var(--text3);margin-bottom:16px;}
-.modal-info-box{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.7;}
-.modal-info-box strong{color:var(--gold);}
-.modal-buttons{display:flex;gap:10px;}
-.modal-btn-cancel{flex:1;padding:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);}
-.modal-btn-confirm{flex:2;padding:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);}
-.modal-btn-confirm:active{opacity:.8;}
-
-/* Animate page transitions */
-.page{animation:fadeUp .25s ease both;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-
-/* Section headers */
-.section-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:4px 0;}
+  body {
+    font-family: 'Inter', system-ui, 'Noto Sans Myanmar', sans-serif;
+    background: linear-gradient(145deg, #f5f3ff 0%, #fae8ff 100%);
+    min-height: 100vh; overflow: hidden;
+  }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #f1f1f1; border-radius:10px; }
+  ::-webkit-scrollbar-thumb { background: #d8b4fe; border-radius:10px; }
+  .card-hover { transition: all 0.2s ease; }
+  .card-hover:active { transform: scale(0.98); }
+  .ripple { position:relative; overflow:hidden; }
+  .ripple:after { content:""; display:block; position:absolute; width:100%; height:100%; top:0; left:0; pointer-events:none; background-image:radial-gradient(circle,rgba(255,255,255,0.4) 10%,transparent 10%); background-repeat:no-repeat; background-position:50%; transform:scale(10); opacity:0; transition:transform 0.4s,opacity 0.6s; }
+  .ripple:active:after { transform:scale(0); opacity:0.4; transition:0s; }
+  .mm { line-height:1.6; letter-spacing:-0.2px; }
+  .page { display:none; }
+  .page.active { display:block; }
+  .pickaxe-swing { animation:swing .55s ease-in-out infinite alternate; transform-origin:bottom right; display:inline-block; }
+  @keyframes swing { from{transform:rotate(-30deg)} to{transform:rotate(12deg)} }
+  .rock-shake { animation:rshake .55s ease-in-out infinite; display:inline-block; }
+  @keyframes rshake { 0%,100%{transform:translate(0,0)} 30%{transform:translate(-2px,1px)} 70%{transform:translate(2px,-1px)} }
+  .pulse-dot { animation:pdot 1.2s infinite; }
+  @keyframes pdot { 0%,100%{opacity:1} 50%{opacity:0.25} }
+  .miner-glow { animation:mglow 2s infinite alternate; }
+  @keyframes mglow { from{box-shadow:0 2px 8px rgba(134,239,172,.3)} to{box-shadow:0 4px 18px rgba(74,222,128,.5)} }
+  .earn-bar-fill { transition: width 1s linear; }
+  .cd-badge { font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
-<div class="bg-glow"></div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+<div class="flex items-start justify-center min-h-screen">
+<div class="w-full max-w-md mx-auto bg-white/95 shadow-2xl rounded-none sm:rounded-3xl overflow-hidden border-0 sm:border border-white/60 relative" style="min-height:100vh;background:rgba(255,255,252,0.97);">
 
-<!-- Ad Overlay -->
-<div class="ad-overlay" id="adOverlay">
-  <div class="ad-circle">
-    <div class="cd" id="adCountdown">5</div>
-    <div class="sec-lbl">sec</div>
-  </div>
-  <div class="ad-title">ကြော်ငြာ ကြည့်နေသည်...</div>
-  <div class="ad-sub" id="adSubText">ပြည့်ပြီးနောက် ဆုကြေး ရရှိမည်</div>
-</div>
+  <div class="pb-24 overflow-y-auto" style="height:100vh;" id="mainScroll">
+  <div class="px-4 sm:px-5 pt-5">
 
-<!-- Purchase Modal -->
-<div class="modal-overlay" id="purchaseModal">
-  <div class="modal">
-    <div class="modal-title">⛏️ မိုင်နာ ဝယ်ယူမည်</div>
-    <div class="modal-sub" id="purchaseModalSub">Slot #1 မိုင်နာ</div>
-    <div class="modal-info-box">
-      မိုင်နာ တစ်လုံး activate လုပ်ရန် admin ကို ငွေပေးချေပြီး screenshot ပို့ပါ။<br><br>
-      ✅ Admin ခွင့်ပြုပြီးနောက် <strong>10 မိနစ်ကို 100 ကျပ်</strong> ရရှိမည်<br>
-      📲 Admin: <strong id="adminContact">@kyawngar_admin</strong><br><br>
-      <strong>တောင်းဆိုမှုပြီးနောက် admin နှင့်ဆက်သွယ်ပါ</strong>
-    </div>
-    <div class="modal-buttons">
-      <button class="modal-btn-cancel" onclick="closePurchaseModal()">မလုပ်တော့</button>
-      <button class="modal-btn-confirm" id="confirmPurchaseBtn" onclick="confirmPurchase()">✓ တောင်းဆိုမည်</button>
-    </div>
-  </div>
-</div>
-
-<div class="app">
-  <!-- Header -->
-  <div class="header">
-    <div class="header-brand">
-      <div class="header-logo">⛏️</div>
-      <div>
-        <div class="header-name">Kyawngar</div>
-        <div class="header-sub" id="headerSub">ပိုက်ဆံရှာမည်</div>
-      </div>
-    </div>
-    <div class="header-balance">
-      <span>💰</span>
-      <span class="header-balance-num" id="headerBalance">0</span>
-      <span style="font-size:11px;color:var(--text3)">ကျပ်</span>
-    </div>
-  </div>
-
-  <!-- Pages -->
-  <div class="pages">
-
-    <!-- ========== HOME PAGE ========== -->
-    <div class="page active" id="page-home">
-      <!-- Balance Card -->
-      <div class="card balance-card card-gold">
-        <div style="font-size:11px;color:var(--text3);margin-bottom:2px;">လက်ကျန်ငွေ</div>
-        <div class="amount" id="homeBalance">0</div>
-        <div style="font-size:11px;color:var(--text3);">MMK ကျပ်ငွေ</div>
-        <div style="margin-top:8px;display:flex;align-items:center;gap:6px;">
-          <span style="font-size:11px;color:var(--green);">⚡ မိုင်နာ ဝင်ငွေ:</span>
-          <span style="font-size:11px;font-weight:700;color:var(--green);" id="homeLiveEarn">0</span>
-          <span style="font-size:10px;color:var(--text3);">ကျပ် (pending)</span>
-        </div>
-        <button class="collect-btn" id="homeCollectBtn" onclick="collectEarnings()">⛏️ ဝင်ငွေ ထည့်သွင်းမည်</button>
-      </div>
-
-      <!-- Stats Row -->
-      <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-icon">⛏️</div>
-          <div class="stat-num" id="homeActiveMiners">0</div>
-          <div class="stat-label">Active မိုင်နာ</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">👥</div>
-          <div class="stat-num" id="homeInviteCount">0</div>
-          <div class="stat-label">ဖိတ်ထားသူ</div>
-        </div>
-      </div>
-
-      <!-- Invite Card -->
-      <div class="invite-card">
-        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">🎁 သူငယ်ချင်းဖိတ်ကြားပါ</div>
-        <p>တစ်ယောက်ဖိတ်ကြားတိုင်း <strong style="color:var(--gold)">2,000 ကျပ်</strong> ရရှိမည်</p>
-        <button class="copy-btn" id="homeInviteBtn" onclick="copyInviteLink()">🔗 ဖိတ်ကြားချိတ်ဆက်ကူး</button>
-      </div>
-
-      <!-- Quick info -->
-      <div class="card" style="background:rgba(245,197,24,.04);">
-        <div style="font-size:12px;color:var(--text2);line-height:1.8;">
-          ⛏️ မိုင်နာတစ်လုံးကို <strong style="color:var(--gold)">10 မိနစ်ကို 100 ကျပ်</strong> ရသည်<br>
-          📺 တာဝန် 1-5 ကြည့်ရှုပြီး <strong style="color:var(--gold)">300 ကျပ်</strong> ရသည်<br>
-          💸 အနည်းဆုံး <strong style="color:var(--gold)">50,000 ကျပ်</strong> ထုတ်နိုင်သည်
-        </div>
-      </div>
-    </div>
-
-    <!-- ========== EARN PAGE ========== -->
-    <div class="page" id="page-earn">
-      <div class="earn-header">
-        <h2>⛏️ ပိုက်ဆံတူးမည်</h2>
-        <p>မိုင်နာ 3 လုံးကို activate လုပ်ပြီး ပိုက်ဆံတူးပါ</p>
-      </div>
-
-      <!-- Miners Section -->
-      <div class="miners-section">
-        <div class="section-label">🔧 မိုင်နာများ</div>
-        <div id="minersContainer" style="display:flex;flex-direction:column;gap:10px;">
-          <!-- Miner cards injected by JS -->
-        </div>
-      </div>
-
-      <!-- Tasks Section -->
-      <div class="tasks-section">
-        <div class="section-label">📺 ကြော်ငြာကြည့်မည် (တာဝန်)</div>
-        <div class="tasks-grid" id="tasksGrid">
-          <!-- Task cards injected by JS -->
-        </div>
-      </div>
-    </div>
-
-    <!-- ========== WITHDRAW PAGE ========== -->
-    <div class="page" id="page-withdraw">
-      <div class="notice-box">
-        <div class="notice-icon">ℹ️</div>
-        <div class="notice-text">
-          <strong>အနည်းဆုံး 50,000 MMK</strong> ရှိမှ ထုတ်နိုင်သည်။<br>
-          ထုတ်တောင်းဆိုပြီး admin စစ်ဆေးပြီးနောက် ငွေလွှဲပေးမည်။
-        </div>
-      </div>
-
-      <div class="wd-balance-row">
-        <span class="label">လက်ကျန်ငွေ</span>
-        <span class="value" id="wdBalance">0 ကျပ်</span>
-      </div>
-
-      <div class="wd-form">
-        <div>
-          <span class="form-label">ငွေပေးချေမှုနည်းလမ်း</span>
-          <div class="method-tabs">
-            <div class="method-tab selected" id="tabKpay" onclick="selectMethod('kpay')">
-              <span class="method-tab-icon">💙</span>KBZ Pay
-            </div>
-            <div class="method-tab" id="tabWave" onclick="selectMethod('wavepay')">
-              <span class="method-tab-icon">🌊</span>Wave Pay
+    <!-- ===== HEADER ===== -->
+    <div class="flex items-center justify-between mb-5">
+      <div class="flex items-center gap-3">
+        <div class="relative flex-shrink-0">
+          <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-purple-500 to-fuchsia-500 p-[2px]">
+            <div class="w-full h-full rounded-full bg-white flex items-center justify-center">
+              <div class="w-full h-full rounded-full bg-gradient-to-br from-purple-400 to-fuchsia-500 flex items-center justify-center text-white font-extrabold text-lg" id="avatarEl">K</div>
             </div>
           </div>
+          <div class="absolute -bottom-0.5 -right-0.5 bg-green-500 border-2 border-white rounded-full w-3 h-3"></div>
         </div>
-
         <div>
-          <span class="form-label" id="wdAccountLabel">KPay အကောင့်နံပါတ်</span>
-          <input class="form-input" type="tel" id="wdAccountNumber" placeholder="09xxxxxxxxx">
+          <h1 class="text-xl font-extrabold bg-gradient-to-r from-purple-700 to-fuchsia-700 bg-clip-text text-transparent" id="greetName">မင်္ဂလာပါ!</h1>
+          <p class="text-[11px] text-gray-500 font-medium flex items-center gap-1 mt-0.5">
+            <i class="fas fa-sun text-amber-400 text-[10px]"></i> Kyawngar App
+          </p>
         </div>
-
-        <div>
-          <span class="form-label">အကောင့်ပိုင်ရှင်အမည်</span>
-          <input class="form-input" type="text" id="wdAccountName" placeholder="ဦး/ဒေါ် ...">
-        </div>
-
-        <div>
-          <span class="form-label">ထုတ်ယူမည့်ပမာဏ (MMK)</span>
-          <input class="form-input" type="number" id="wdAmount" placeholder="50000 အနည်းဆုံး">
-        </div>
-
-        <button class="wd-submit" id="wdSubmitBtn" onclick="submitWithdraw()">💸 ထုတ်ယူမည်</button>
+      </div>
+      <div class="bg-white/70 rounded-full w-9 h-9 flex items-center justify-center shadow-sm border border-purple-100">
+        <i class="far fa-bell text-purple-600 text-base"></i>
       </div>
     </div>
 
-    <!-- ========== INVITES PAGE ========== -->
-    <div class="page" id="page-invites">
-      <div class="invite-hero">
-        <div class="big-num" id="inviteHeroCount">0</div>
-        <div class="big-label">ဖိတ်ကြားထားသူ</div>
-        <div class="reward-info" style="color:var(--text2);">
-          တစ်ယောက်ဖိတ်ကြားတိုင်း <span style="color:var(--gold);font-weight:700;">2,000 ကျပ်</span> ရသည်
+    <!-- ===== BALANCE CARD (always visible) ===== -->
+    <div class="bg-gradient-to-br from-purple-600 via-fuchsia-600 to-purple-700 rounded-2xl p-4 sm:p-5 mb-5 shadow-xl shadow-purple-200/50 relative overflow-hidden">
+      <div class="absolute -top-8 -right-8 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+      <div class="absolute bottom-0 left-0 w-32 h-32 bg-purple-400/20 rounded-full blur-3xl"></div>
+      <div class="relative z-10">
+        <div class="flex items-center gap-2 text-white/80 text-xs font-medium mb-1.5">
+          <i class="fas fa-wallet text-amber-300 text-xs"></i>
+          <span>TOTAL EARNINGS</span>
         </div>
-        <button class="copy-btn" style="margin-top:10px;" onclick="copyInviteLink()">🔗 ဖိတ်ကြားချိတ်ဆက်ကူး</button>
-      </div>
-
-      <div class="section-label">ဖိတ်ကြားထားသူများ စာရင်း</div>
-      <div class="invite-list" id="inviteList">
-        <div class="empty-state">
-          <div class="empty-icon">👥</div>
-          <p>မည်သူမျှ မဖိတ်ကြားရသေးပါ<br>သူငယ်ချင်းများကို ဖိတ်ကြားပြီး ပိုက်ဆံရှာပါ!</p>
+        <div class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-1 flex items-baseline flex-wrap gap-1">
+          MMK <span id="balanceDisplay">0</span>
+          <span class="text-xs sm:text-sm font-normal text-white/70">Kyat</span>
+        </div>
+        <div class="flex justify-between items-center mt-2 gap-2 flex-wrap">
+          <p class="text-purple-100 text-[10px] sm:text-xs flex items-center gap-1">
+            <i class="fas fa-arrow-down text-[8px]"></i> ⛏️ pending: <span id="liveEarnAmt">0</span> ကျပ်
+          </p>
+          <button onclick="collectEarnings()" class="bg-white/20 rounded-full px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-[11px] font-semibold text-white backdrop-blur-sm ripple hover:bg-white/30 transition-all">
+            <i class="fas fa-credit-card mr-1"></i>ထည့်သွင်းမည်
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- ========== ACCOUNT PAGE ========== -->
-    <div class="page" id="page-account">
-      <div class="profile-card">
-        <div class="profile-avatar" id="profileAvatar">?</div>
-        <div>
-          <div class="profile-name" id="profileName">Loading...</div>
-          <div class="profile-id" id="profileId">ID: —</div>
+    <!-- ============================================ -->
+    <!-- HOME                                         -->
+    <!-- ============================================ -->
+    <div id="page-home" class="page active">
+      <div class="grid grid-cols-2 gap-3 mb-5">
+        <div class="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-3 border border-purple-100 shadow-sm">
+          <div class="text-purple-400 text-lg mb-1"><i class="fas fa-hammer"></i></div>
+          <div class="text-xl font-extrabold text-purple-700" id="homeMinersCount">0</div>
+          <div class="text-[10px] text-gray-500 mt-0.5">Active မိုင်နာ</div>
+        </div>
+        <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3 border border-amber-100 shadow-sm">
+          <div class="text-amber-400 text-lg mb-1"><i class="fas fa-users"></i></div>
+          <div class="text-xl font-extrabold text-amber-700" id="homeInviteCount">0</div>
+          <div class="text-[10px] text-gray-500 mt-0.5">ဖိတ်ကြားထားသူ</div>
         </div>
       </div>
 
-      <div class="account-stats">
-        <div class="acstat">
-          <div class="ac-icon">💰</div>
-          <div class="ac-val" id="acBalance">0</div>
-          <div class="ac-label">ကျပ်ငွေ (လက်ကျန်)</div>
+      <!-- Referral Bonus card -->
+      <div class="mb-5">
+        <div class="flex items-baseline justify-between mb-3">
+          <h2 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+            <i class="fas fa-user-plus text-amber-500 text-sm"></i> Referral Bonus
+          </h2>
+          <span class="text-[10px] sm:text-[11px] font-medium text-amber-600 bg-amber-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full whitespace-nowrap">unlimited</span>
         </div>
-        <div class="acstat">
-          <div class="ac-icon">👥</div>
-          <div class="ac-val" id="acInvites">0</div>
-          <div class="ac-label">ဖိတ်ကြားထားသူ</div>
-        </div>
-        <div class="acstat">
-          <div class="ac-icon">⛏️</div>
-          <div class="ac-val" id="acMiners">0</div>
-          <div class="ac-label">Active မိုင်နာ</div>
-        </div>
-        <div class="acstat">
-          <div class="ac-icon">📺</div>
-          <div class="ac-val" id="acTasks">5</div>
-          <div class="ac-label">တာဝန်အရေအတွက်</div>
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-3 sm:p-4 shadow-md border border-amber-200 card-hover relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-20 h-20 bg-amber-200/30 rounded-full blur-2xl"></div>
+          <div class="flex items-center gap-3 sm:gap-4 flex-nowrap">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg flex-shrink-0">
+              <i class="fas fa-gift text-white text-base sm:text-xl"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <span class="text-xs sm:text-sm font-bold text-amber-700 bg-amber-100 px-2.5 py-1.5 rounded-full inline-flex items-center gap-1.5 mm">
+                <i class="fas fa-star text-amber-500 text-[10px] sm:text-xs"></i>
+                ⭐ တစ်ယောက်ဖိတ်တိုင်း 2,000 ကျပ်ငွေ ရရှိမည်
+              </span>
+              <p class="text-[10px] sm:text-xs text-gray-500 mt-1.5 flex items-center gap-1">
+                <i class="fas fa-users text-amber-400 text-[9px]"></i> Invite friends & earn instantly
+              </p>
+            </div>
+            <button onclick="copyInviteLink()" class="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-xl shadow-md flex items-center gap-1.5 ripple flex-shrink-0 text-xs sm:text-sm whitespace-nowrap">
+              <i class="fas fa-share-alt text-[10px] sm:text-xs"></i> ဖိတ်မည်
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="referral-card">
-        <h3>🔗 ကျွန်ုပ်၏ ဖိတ်ကြားကုဒ်</h3>
-        <div class="ref-code-box">
-          <div class="ref-code" id="acRefCode">—</div>
-          <button class="ref-copy" onclick="copyInviteLink()">ကူး</button>
+      <!-- Quick info card -->
+      <div class="bg-gradient-to-r from-purple-50 to-fuchsia-50 rounded-xl p-3 border border-purple-100">
+        <div class="text-xs text-gray-600 space-y-1.5 mm">
+          <div class="flex items-center gap-2"><i class="fas fa-hammer text-purple-400 w-4 text-center"></i> မိုင်နာ တစ်လုံး — <span class="font-bold text-purple-700">10 မိနစ်ကို 100 ကျပ်</span></div>
+          <div class="flex items-center gap-2"><i class="fas fa-play-circle text-fuchsia-400 w-4 text-center"></i> တာဝန် 5 ခု ကြည့်ပြီး — <span class="font-bold text-fuchsia-700">300 ကျပ် × 5</span></div>
+          <div class="flex items-center gap-2"><i class="fas fa-money-bill-wave text-emerald-400 w-4 text-center"></i> အနည်းဆုံး <span class="font-bold text-emerald-700">50,000 ကျပ်</span> ထုတ်နိုင်</div>
         </div>
-        <button class="copy-btn" onclick="copyInviteLink()">🔗 ဖိတ်ကြားချိတ်ဆက်ကူး</button>
       </div>
     </div>
 
-  </div><!-- end .pages -->
+    <!-- ============================================ -->
+    <!-- EARN (Mining + Tasks)                        -->
+    <!-- ============================================ -->
+    <div id="page-earn" class="page">
 
-  <!-- Bottom Nav -->
-  <nav class="bottom-nav">
-    <button class="nav-btn active" data-page="home" onclick="goPage('home')">
-      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      <span>ပင်မ</span>
-    </button>
-    <button class="nav-btn" data-page="earn" onclick="goPage('earn')">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <span>ပိုက်ဆံရှာ</span>
-    </button>
-    <button class="nav-btn" data-page="withdraw" onclick="goPage('withdraw')">
-      <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-      <span>ထုတ်မည်</span>
-    </button>
-    <button class="nav-btn" data-page="invites" onclick="goPage('invites')">
-      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-      <span>ဖိတ်ထားသူ</span>
-    </button>
-    <button class="nav-btn" data-page="account" onclick="goPage('account')">
-      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <span>အကောင့်</span>
-    </button>
-  </nav>
+      <!-- Miners header -->
+      <div class="flex items-baseline justify-between mb-3">
+        <h2 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+          <i class="fas fa-hammer text-purple-500 text-sm"></i> မိုင်နာများ
+        </h2>
+        <span class="text-[10px] sm:text-[11px] font-medium text-purple-500 bg-purple-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full">3 Slots</span>
+      </div>
+
+      <div id="minersContainer" class="space-y-3 mb-6"></div>
+
+      <!-- Tasks header -->
+      <div class="flex items-baseline justify-between mb-3">
+        <h2 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+          <i class="fas fa-tasks text-purple-500 text-sm"></i> Daily Rewards
+        </h2>
+        <span class="text-[10px] sm:text-[11px] font-medium text-purple-500 bg-purple-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full">3 မိနစ် cooldown</span>
+      </div>
+
+      <div id="tasksContainer" class="space-y-2.5 sm:space-y-3"></div>
+
+      <div class="mt-5 text-center">
+        <p class="text-[9px] sm:text-[10px] text-gray-400 flex items-center justify-center gap-1 flex-wrap">
+          <i class="fas fa-gift text-purple-300 text-[8px]"></i>
+          တာဝန် 5 ခုလုံး ပြည့်ပြီးရင် 1,500 ကျပ် ရရှိမည်
+        </p>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- WITHDRAW                                     -->
+    <!-- ============================================ -->
+    <div id="page-withdraw" class="page">
+      <div class="flex items-baseline justify-between mb-4">
+        <h2 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+          <i class="fas fa-money-bill-wave text-purple-500 text-sm"></i> ပိုက်ဆံထုတ်မည်
+        </h2>
+      </div>
+
+      <!-- Notice -->
+      <div class="bg-blue-50 rounded-xl p-3 border border-blue-100 mb-4 flex gap-2.5">
+        <i class="fas fa-info-circle text-blue-400 mt-0.5 flex-shrink-0 text-sm"></i>
+        <p class="text-xs text-blue-700 mm">အနည်းဆုံး <strong>50,000 MMK</strong> ရှိမှ ထုတ်နိုင်သည်။ Admin စစ်ဆေးပြီးနောက် ငွေလွှဲပေးမည်။</p>
+      </div>
+
+      <!-- Balance row -->
+      <div class="bg-gradient-to-r from-purple-50 to-fuchsia-50 rounded-xl p-3 border border-purple-100 mb-4 flex justify-between items-center">
+        <span class="text-xs text-gray-500 flex items-center gap-1"><i class="fas fa-wallet text-purple-400 text-xs"></i> လက်ကျန်ငွေ</span>
+        <span class="text-base font-extrabold text-purple-700" id="wdBalanceDisplay">0 ကျပ်</span>
+      </div>
+
+      <!-- Method -->
+      <p class="text-xs font-semibold text-gray-700 mb-2">ငွေပေးချေမှုနည်းလမ်း ရွေးပါ</p>
+      <div class="grid grid-cols-2 gap-2.5 mb-4">
+        <div id="tabKpay" onclick="selectMethod('kpay')"
+             class="border-2 border-purple-400 bg-purple-50 rounded-xl p-3 text-center cursor-pointer card-hover">
+          <div class="text-2xl mb-1">💙</div>
+          <div class="text-xs font-bold text-purple-700">KBZ Pay</div>
+        </div>
+        <div id="tabWave" onclick="selectMethod('wavepay')"
+             class="border-2 border-gray-200 bg-white rounded-xl p-3 text-center cursor-pointer card-hover">
+          <div class="text-2xl mb-1">🌊</div>
+          <div class="text-xs font-bold text-gray-500">Wave Pay</div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="space-y-3 mb-5">
+        <div>
+          <label class="text-xs font-semibold text-gray-700 mb-1.5 block" id="wdAccLabel">KPay အကောင့်နံပါတ်</label>
+          <input id="wdAccNum" type="tel" placeholder="09xxxxxxxxx"
+                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-purple-400 bg-white transition-all mm">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-700 mb-1.5 block">အကောင့်ပိုင်ရှင်အမည်</label>
+          <input id="wdAccName" type="text" placeholder="ဦး/ဒေါ် ..."
+                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-purple-400 bg-white transition-all mm">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-700 mb-1.5 block">ထုတ်ယူမည့်ပမာဏ (MMK)</label>
+          <input id="wdAmount" type="number" placeholder="50000 အနည်းဆုံး"
+                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-purple-400 bg-white transition-all">
+        </div>
+      </div>
+
+      <button onclick="submitWithdraw()" id="wdSubmitBtn"
+              class="w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-purple-200 ripple text-sm transition-all">
+        <i class="fas fa-paper-plane mr-2"></i>ထုတ်ယူမည်
+      </button>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- INVITES                                      -->
+    <!-- ============================================ -->
+    <div id="page-invites" class="page">
+      <div class="flex items-baseline justify-between mb-3">
+        <h2 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+          <i class="fas fa-user-plus text-amber-500 text-sm"></i> Referral Bonus
+        </h2>
+        <span class="text-[10px] font-medium text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">unlimited</span>
+      </div>
+
+      <div class="bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl p-5 text-center shadow-xl shadow-amber-200/50 mb-5 relative overflow-hidden">
+        <div class="absolute -top-6 -right-6 w-20 h-20 bg-white/15 rounded-full blur-xl"></div>
+        <div class="text-5xl font-extrabold text-white" id="invHeroCount">0</div>
+        <div class="text-amber-100 text-sm mt-1">ဖိတ်ကြားထားသူ</div>
+        <div class="text-white/80 text-xs mt-2">တစ်ယောက်ဖိတ်တိုင်း <strong class="text-white">2,000 ကျပ်</strong></div>
+        <button onclick="copyInviteLink()" class="mt-3 bg-white/20 hover:bg-white/30 text-white font-bold px-5 py-2 rounded-xl text-xs ripple transition-all backdrop-blur-sm">
+          <i class="fas fa-share-alt mr-1.5"></i>ဖိတ်ကြားချိတ်ဆက် ကူး
+        </button>
+      </div>
+
+      <p class="text-xs font-bold text-gray-700 mb-3">ဖိတ်ကြားထားသူများ စာရင်း</p>
+      <div id="inviteList" class="space-y-2.5">
+        <div class="text-center py-8 text-gray-400">
+          <div class="text-3xl mb-2">👥</div>
+          <p class="text-xs mm">မည်သူမျှ မဖိတ်ကြားရသေးပါ</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ACCOUNT                                      -->
+    <!-- ============================================ -->
+    <div id="page-account" class="page">
+
+      <div class="bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-2xl p-5 mb-5 shadow-xl shadow-purple-200/50 relative overflow-hidden">
+        <div class="absolute -top-6 -right-6 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
+        <div class="flex items-center gap-4 relative z-10">
+          <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-2xl font-extrabold text-white border-2 border-white/40" id="acAvatar">K</div>
+          <div>
+            <div class="text-lg font-extrabold text-white" id="acName">Loading...</div>
+            <div class="text-purple-200 text-xs mt-0.5" id="acId">ID: —</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-5">
+        <div class="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-xl p-3 border border-purple-100 text-center shadow-sm">
+          <div class="text-purple-400 text-lg mb-1"><i class="fas fa-wallet"></i></div>
+          <div class="text-lg font-extrabold text-purple-700" id="acBalance">0</div>
+          <div class="text-[10px] text-gray-500">ကျပ်ငွေ</div>
+        </div>
+        <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3 border border-amber-100 text-center shadow-sm">
+          <div class="text-amber-400 text-lg mb-1"><i class="fas fa-users"></i></div>
+          <div class="text-lg font-extrabold text-amber-700" id="acInvites">0</div>
+          <div class="text-[10px] text-gray-500">ဖိတ်ကြားထားသူ</div>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-3 border border-emerald-100 text-center shadow-sm">
+          <div class="text-emerald-400 text-lg mb-1"><i class="fas fa-hammer"></i></div>
+          <div class="text-lg font-extrabold text-emerald-700" id="acMiners">0</div>
+          <div class="text-[10px] text-gray-500">Active မိုင်နာ</div>
+        </div>
+        <div class="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-3 border border-violet-100 text-center shadow-sm">
+          <div class="text-violet-400 text-lg mb-1"><i class="fas fa-tasks"></i></div>
+          <div class="text-lg font-extrabold text-violet-700">5</div>
+          <div class="text-[10px] text-gray-500">တာဝန်အရေအတွက်</div>
+        </div>
+      </div>
+
+      <!-- Referral code -->
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-200 card-hover relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-16 h-16 bg-amber-200/30 rounded-full blur-2xl"></div>
+        <div class="flex items-baseline justify-between mb-2">
+          <p class="text-xs font-bold text-gray-700 flex items-center gap-1.5"><i class="fas fa-link text-amber-500 text-xs"></i>ကျွန်ုပ်၏ ဖိတ်ကြားကုဒ်</p>
+          <span class="text-[10px] text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">unlimited</span>
+        </div>
+        <div class="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-amber-100 mb-3">
+          <span class="flex-1 text-sm font-bold text-amber-600 truncate" id="acRefCode">—</span>
+          <button onclick="copyInviteLink()" class="text-xs text-amber-600 font-semibold bg-amber-100 px-2.5 py-1 rounded-lg hover:bg-amber-200 transition-all">ကူး</button>
+        </div>
+        <button onclick="copyInviteLink()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-2.5 rounded-xl text-xs ripple shadow-md">
+          <i class="fas fa-share-alt mr-1.5"></i>ဖိတ်ကြားချိတ်ဆက် မျှဝေမည်
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /px-4 -->
+  </div><!-- /scroll -->
+
+  <!-- ===== BOTTOM NAV ===== -->
+  <div class="fixed bottom-0 left-0 right-0 w-full max-w-md mx-auto bg-white/95 backdrop-blur-lg border-t border-white/40 shadow-2xl rounded-t-2xl z-50"
+       style="backdrop-filter:blur(20px);background:rgba(255,255,255,0.97);">
+    <div class="flex justify-around items-center py-1.5 sm:py-2 px-2">
+      <!-- Home -->
+      <div onclick="goPage('home')" id="nav-home"
+           class="flex flex-col items-center justify-center py-1 px-2 sm:px-3 rounded-xl cursor-pointer transition-all">
+        <div id="ni-home" class="text-purple-600 text-lg sm:text-xl"><i class="fas fa-home"></i></div>
+        <span id="ns-home" class="text-[9px] sm:text-[10px] font-medium mt-0.5 text-purple-600 mm">ပင်မ</span>
+      </div>
+      <!-- Earn -->
+      <div onclick="goPage('earn')" id="nav-earn"
+           class="flex flex-col items-center justify-center py-1 px-2 sm:px-3 rounded-xl cursor-pointer transition-all">
+        <div id="ni-earn" class="text-gray-400 text-lg sm:text-xl"><i class="fas fa-hammer"></i></div>
+        <span id="ns-earn" class="text-[9px] sm:text-[10px] font-medium mt-0.5 text-gray-400 mm">ပိုက်ဆံရှာမည်</span>
+      </div>
+      <!-- Withdraw CENTER -->
+      <div class="relative -top-2 sm:-top-3" onclick="goPage('withdraw')">
+        <div class="bg-gradient-to-r from-purple-500 to-fuchsia-500 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-xl shadow-purple-300/50 ring-4 ring-white/70 transition-transform active:scale-95 cursor-pointer ripple">
+          <i class="fas fa-money-bill-wave text-white text-xl sm:text-2xl"></i>
+        </div>
+        <span class="text-[8px] sm:text-[9px] font-semibold text-purple-600 absolute -bottom-3 sm:-bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap mm">ပိုက်ဆံထုတ်မည်</span>
+      </div>
+      <!-- Invites -->
+      <div onclick="goPage('invites')" id="nav-invites"
+           class="flex flex-col items-center justify-center py-1 px-2 sm:px-3 rounded-xl cursor-pointer transition-all">
+        <div id="ni-invites" class="text-gray-400 text-lg sm:text-xl"><i class="fas fa-user-friends"></i></div>
+        <span id="ns-invites" class="text-[9px] sm:text-[10px] font-medium mt-0.5 text-gray-400 mm">ဖိတ်ထားသူများ</span>
+      </div>
+      <!-- Account -->
+      <div onclick="goPage('account')" id="nav-account"
+           class="flex flex-col items-center justify-center py-1 px-2 sm:px-3 rounded-xl cursor-pointer transition-all">
+        <div id="ni-account" class="text-gray-400 text-lg sm:text-xl"><i class="fas fa-user-circle"></i></div>
+        <span id="ns-account" class="text-[9px] sm:text-[10px] font-medium mt-0.5 text-gray-400 mm">အကောင့်</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+</div><!-- /flex -->
+
+<!-- ===== PURCHASE MODAL ===== -->
+<div id="purchaseModal" class="fixed inset-0 z-[70] hidden items-end justify-center" style="background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);">
+  <div class="bg-white rounded-t-2xl p-5 w-full max-w-md">
+    <div class="text-base font-extrabold text-gray-800 mb-1">⛏️ မိုင်နာ ဝယ်ယူမည်</div>
+    <div class="text-xs text-gray-500 mb-4 mm" id="purchaseModalSub">Slot #1</div>
+    <div class="bg-purple-50 rounded-xl p-3 border border-purple-100 text-xs text-gray-600 mm mb-4 space-y-1.5 leading-relaxed">
+      <div>📌 ဤ slot activate လုပ်ရန် Admin ကို ငွေပေးချေပြီး screenshot ပို့ပါ</div>
+      <div>✅ Admin ခွင့်ပြုပြီးနောက် <strong class="text-purple-700">10 မိနစ်ကို 100 ကျပ်</strong> ဝင်လာမည်</div>
+      <div>📲 Admin: <strong class="text-purple-700">@kyawngar_admin</strong></div>
+    </div>
+    <div class="flex gap-2.5">
+      <button onclick="closePurchaseModal()" class="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-sm font-semibold">မလုပ်တော့</button>
+      <button onclick="confirmPurchase()" id="confirmPurchaseBtn"
+              class="flex-[2] py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white text-sm font-bold ripple shadow-md">
+        ✓ တောင်းဆိုမည်
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toastEl" class="fixed top-20 left-1/2 -translate-x-1/2 z-[90] transition-all duration-300 opacity-0 pointer-events-none">
+  <div class="bg-gray-900/90 backdrop-blur-md text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-xl flex items-center gap-2 text-xs sm:text-sm font-medium border border-white/20 whitespace-nowrap">
+    <i class="fas fa-check-circle text-emerald-400" id="toastIcon"></i>
+    <span id="toastMsg">Success</span>
+  </div>
 </div>
 
 <script>
-// =====================================================================
-// CONFIG
-// =====================================================================
-const API_BASE      = 'https://kyawngar-backend.onrender.com/api'; // Update with your backend URL
+// ====================================================
+// CONFIG  ← ဒီနေရာ ပြောင်းပါ
+// ====================================================
+const API_BASE      = 'https://kyawngar-backend.onrender.com/api';
 const ADSGRAM_BLOCK = '111111';
-const TASK_REWARDS  = { task1: 300, task2: 300, task3: 300, task4: 300, task5: 300 };
-const TASK_NAMES    = { task1: 'တာဝန် ၁', task2: 'တာဝန် ၂', task3: 'တာဝန် ၃', task4: 'တာဝန် ၄', task5: 'တာဝန် ၅' };
-const TASK_ICONS    = { task1: '📺', task2: '🎬', task3: '📡', task4: '🎥', task5: '📹' };
-const MINER_NAMES   = { 1: 'မိုင်နာ Alpha', 2: 'မိုင်နာ Beta', 3: 'မိုင်နာ Gamma' };
-const MINER_ICONS   = { 1: '⛏️', 2: '🔨', 3: '🪚' };
+const BOT_USERNAME  = 'kyawngar_bot';
 const MINE_INTERVAL = 10 * 60 * 1000;
 const MINE_RATE     = 100;
+const TASK_ICONS    = ['fas fa-play','fas fa-clipboard-list','fas fa-user-friends','fas fa-calendar-check','fas fa-pen-fancy'];
+const TASK_NAMES    = ['တာဝန် ၁','တာဝန် ၂','တာဝန် ၃','တာဝန် ၄','တာဝန် ၅'];
+const MINER_LABELS  = ['Alpha','Beta','Gamma'];
 
-// =====================================================================
-// Telegram Setup
-// =====================================================================
-const tg = window.Telegram?.WebApp;
-if (tg) { tg.expand(); tg.ready(); tg.enableClosingConfirmation(); }
-const initData    = tg?.initData || '';
-const tgUser      = tg?.initDataUnsafe?.user || null;
-const botUsername = 'kyawngar_bot'; // Update with your bot username
+const tg         = window.Telegram?.WebApp;
+if (tg) { tg.expand(); tg.ready(); }
+const initData   = tg?.initData || '';
+const tgUser     = tg?.initDataUnsafe?.user || null;
+const startParam = tg?.initDataUnsafe?.start_param || '';
 
-// Referral code from start param
-const startParam  = tg?.initDataUnsafe?.start_param || '';
+let userData = null, selectedMethod = 'kpay', pendingSlot = null;
+let adControllers = {}, minerTimers = {}, taskTimerInterval = null, toastTimer = null;
 
-// =====================================================================
-// State
-// =====================================================================
-let userData = null;
-let adControllers = {};
-let activeMinerIntervals = {};
-let toastTimer = null;
-let pendingPurchaseSlot = null;
-
-// =====================================================================
-// API Helper
-// =====================================================================
+// ====================================================
+// API
+// ====================================================
 async function api(method, path, body) {
-    const opts = {
-        method,
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Telegram-Init-Data': initData,
-            ...(startParam && !userData ? { 'X-Referral': startParam } : {})
-        }
-    };
-    if (body) opts.body = JSON.stringify(body);
-    const res  = await fetch(API_BASE + path, opts);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Error');
-    return data;
-}
-
-// =====================================================================
-// Toast
-// =====================================================================
-function toast(msg, type = '') {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className   = 'toast show ' + type;
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { el.className = 'toast'; }, 2800);
-}
-
-// =====================================================================
-// Navigation
-// =====================================================================
-function goPage(page) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === page));
-    document.getElementById('page-' + page).classList.add('active');
-
-    if (page === 'withdraw') updateWithdrawPage();
-    if (page === 'invites')  loadInvites();
-    if (page === 'account')  updateAccountPage();
-}
-
-// =====================================================================
-// Load User Data
-// =====================================================================
-async function loadUser() {
-    try {
-        userData = await api('GET', '/user');
-        updateAllUI();
-        startLiveCounters();
-    } catch (e) {
-        console.error('loadUser:', e.message);
-        toast('ဆက်သွယ်မှု မအောင်မြင်ပါ', 'error');
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Telegram-Init-Data': initData,
+      ...(startParam && !userData ? { 'X-Referral': startParam } : {})
     }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API_BASE + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Error');
+  return data;
 }
+
+// ====================================================
+// Toast
+// ====================================================
+function showToast(msg, type = 'success') {
+  const el   = document.getElementById('toastEl');
+  const msgEl= document.getElementById('toastMsg');
+  const icon = document.getElementById('toastIcon');
+  msgEl.textContent = msg;
+  icon.className = type === 'error' ? 'fas fa-times-circle text-red-400'
+                 : type === 'gold'  ? 'fas fa-star text-amber-400'
+                 : 'fas fa-check-circle text-emerald-400';
+  el.classList.remove('opacity-0'); el.classList.add('opacity-100');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.classList.remove('opacity-100'); el.classList.add('opacity-0'); }, 2800);
+}
+
+// ====================================================
+// Navigation
+// ====================================================
+const PAGES = ['home','earn','withdraw','invites','account'];
+function goPage(page) {
+  PAGES.forEach(id => {
+    document.getElementById('page-' + id)?.classList.toggle('active', id === page);
+    const ni = document.getElementById('ni-' + id);
+    const ns = document.getElementById('ns-' + id);
+    const active = id === page;
+    if (ni) { ni.className = ni.className.replace(active ? 'text-gray-400':'text-purple-600', active ? 'text-purple-600':'text-gray-400'); }
+    if (ns) { ns.className = ns.className.replace(active ? 'text-gray-400':'text-purple-600', active ? 'text-purple-600':'text-gray-400'); }
+  });
+  document.getElementById('mainScroll').scrollTop = 0;
+  if (page === 'withdraw') updateWdBalance();
+  if (page === 'invites')  loadInvites();
+  if (page === 'account')  updateAccount();
+}
+
+// ====================================================
+// Load User
+// ====================================================
+async function loadUser() {
+  try {
+    userData = await api('GET', '/user');
+    userData._loadedAt = Date.now();
+    updateAllUI(); renderMiners(); renderTasks();
+    startMinerTimers(); startTaskTimers();
+  } catch (e) {
+    showToast('ဆက်သွယ်မှု မအောင်မြင်ပါ', 'error');
+  }
+}
+
+function fmtNum(n) { return Math.floor(n||0).toLocaleString(); }
 
 function updateAllUI() {
-    if (!userData) return;
-    const bal = userData.balance;
-    const fmt = (n) => Math.floor(n).toLocaleString();
-
-    // Header
-    document.getElementById('headerBalance').textContent = fmt(bal);
-
-    // Home
-    document.getElementById('homeBalance').textContent = fmt(bal);
-    document.getElementById('homeLiveEarn').textContent = fmt(userData.liveEarnings || 0);
-    const activeM = (userData.miners || []).filter(m => m.status === 'active').length;
-    document.getElementById('homeActiveMiners').textContent = activeM;
-    document.getElementById('homeInviteCount').textContent  = userData.inviteCount || 0;
-
-    // Account
-    document.getElementById('acBalance').textContent = fmt(bal);
-    document.getElementById('acInvites').textContent = userData.inviteCount || 0;
-    document.getElementById('acMiners').textContent  = activeM;
-    document.getElementById('acRefCode').textContent = userData.referralCode || '—';
-    const pName = tgUser?.first_name || userData.firstName || 'User';
-    const pInitial = (pName[0] || 'U').toUpperCase();
-    document.getElementById('profileAvatar').textContent = pInitial;
-    document.getElementById('profileName').textContent   = pName;
-    document.getElementById('profileId').textContent     = 'ID: ' + userData.userId;
-
-    // Miners render
-    renderMiners();
-    renderTasks();
+  if (!userData) return;
+  const name  = tgUser?.first_name || userData.firstName || 'User';
+  const init  = (name[0]||'K').toUpperCase();
+  const bal   = userData.balance || 0;
+  const live  = userData.liveEarnings || 0;
+  const actM  = (userData.miners||[]).filter(m=>m.status==='active').length;
+  document.getElementById('greetName').textContent       = 'မင်္ဂလာပါ, ' + name + '!';
+  document.getElementById('avatarEl').textContent        = init;
+  document.getElementById('balanceDisplay').textContent  = fmtNum(bal);
+  document.getElementById('liveEarnAmt').textContent     = fmtNum(live);
+  document.getElementById('homeMinersCount').textContent = actM;
+  document.getElementById('homeInviteCount').textContent = userData.inviteCount || 0;
 }
 
-// =====================================================================
-// Miners UI
-// =====================================================================
+// ====================================================
+// Miners
+// ====================================================
 function renderMiners() {
-    const container = document.getElementById('minersContainer');
-    const slots     = [1, 2, 3];
-    const minerMap  = {};
-    (userData.miners || []).forEach(m => { minerMap[m.slotIndex] = m; });
-
-    container.innerHTML = slots.map(slot => {
-        const m    = minerMap[slot];
-        const name = MINER_NAMES[slot];
-        const icon = MINER_ICONS[slot];
-
-        if (!m) {
-            // Not purchased
-            return `<div class="miner-card" id="miner-card-${slot}">
-              <div class="miner-card-header">
-                <div class="miner-icon idle">${icon}</div>
-                <div class="miner-info">
-                  <div class="miner-name">${name}</div>
-                  <div class="miner-status-badge badge-idle"><div class="badge-dot"></div>မဝယ်ရသေးပါ</div>
-                </div>
-              </div>
-              <button class="miner-btn miner-btn-buy" onclick="openPurchaseModal(${slot})">⛏️ တူးမည် (ဝယ်ယူပါ)</button>
-            </div>`;
-        }
-
-        if (m.status === 'pending') {
-            return `<div class="miner-card pending" id="miner-card-${slot}">
-              <div class="miner-card-header">
-                <div class="miner-icon pending-bg">${icon}</div>
-                <div class="miner-info">
-                  <div class="miner-name">${name}</div>
-                  <div class="miner-status-badge badge-pending"><div class="badge-dot pulse"></div>Admin စစ်ဆေးနေသည်</div>
-                </div>
-              </div>
-              <button class="miner-btn miner-btn-pending" disabled>⏳ ခွင့်ပြုချက် စောင့်ဆိုင်းနေသည်...</button>
-            </div>`;
-        }
-
-        if (m.status === 'rejected') {
-            return `<div class="miner-card" id="miner-card-${slot}">
-              <div class="miner-card-header">
-                <div class="miner-icon idle">${icon}</div>
-                <div class="miner-info">
-                  <div class="miner-name">${name}</div>
-                  <div class="miner-status-badge badge-rejected">❌ ငြင်းဆန်ခံရသည်</div>
-                </div>
-              </div>
-              <button class="miner-btn miner-btn-buy" onclick="openPurchaseModal(${slot})">🔄 ထပ်မံ တောင်းဆိုမည်</button>
-            </div>`;
-        }
-
-        if (m.status === 'active') {
-            const pendEarn = m.pendingEarn || 0;
-            const elapsed  = m.lastCollect ? Date.now() - m.lastCollect : 0;
-            const progress = Math.min((elapsed % MINE_INTERVAL) / MINE_INTERVAL * 100, 100);
-            return `<div class="miner-card active" id="miner-card-${slot}">
-              <div class="miner-card-header">
-                <div class="miner-icon active-bg">${icon}</div>
-                <div class="miner-info">
-                  <div class="miner-name">${name}</div>
-                  <div class="miner-status-badge badge-active"><div class="badge-dot pulse"></div>တူးနေသည် ✓</div>
-                </div>
-              </div>
-              <div class="mining-live">
-                <div class="pickaxe-row">
-                  <span class="pickaxe">⛏️</span>
-                  <span class="rock">🪨</span>
-                  <span style="font-size:12px;color:var(--gold)">→</span>
-                  <span style="font-size:16px;">💰</span>
-                </div>
-                <div class="mining-earn" id="miner-earn-${slot}">${Math.floor(pendEarn).toLocaleString()} ကျပ်</div>
-                <div class="mining-rate">10 မိနစ်ကို 100 ကျပ် • ပိုက်ဆံတူးနေသည်...</div>
-              </div>
-              <div class="earn-bar-wrap">
-                <div class="earn-bar-label">
-                  <span>နောက် collect</span>
-                  <span id="miner-timer-${slot}">—</span>
-                </div>
-                <div class="earn-bar"><div class="earn-bar-fill" id="miner-bar-${slot}" style="width:${progress}%"></div></div>
-              </div>
-              <button class="miner-btn miner-btn-collect" id="miner-collect-btn-${slot}" onclick="collectEarnings()" ${pendEarn < 100 ? 'disabled' : ''}>
-                💰 ထည့်သွင်းမည် (+${Math.floor(pendEarn).toLocaleString()} ကျပ်)
-              </button>
-            </div>`;
-        }
-
-        return '';
-    }).join('');
-
-    // Start live update timers for active miners
-    clearMinerTimers();
-    (userData.miners || []).filter(m => m.status === 'active').forEach(m => startMinerTimer(m));
+  const c = document.getElementById('minersContainer');
+  const mMap = {};
+  (userData?.miners||[]).forEach(m => mMap[m.slotIndex] = m);
+  c.innerHTML = [1,2,3].map(s => buildMinerCard(s, mMap[s])).join('');
 }
 
-function clearMinerTimers() {
-    Object.values(activeMinerIntervals).forEach(clearInterval);
-    activeMinerIntervals = {};
+function buildMinerCard(slot, m) {
+  const label = `မိုင်နာ ${MINER_LABELS[slot-1]}`;
+  if (!m) return `
+    <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-sm border border-purple-50 card-hover">
+      <div class="flex items-center gap-2.5 sm:gap-3">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0">
+          <i class="fas fa-hammer text-sm"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-bold text-gray-700">${label}</div>
+          <span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">Slot ဝယ်မရသေးပါ</span>
+        </div>
+        <button onclick="openPurchaseModal(${slot})"
+                class="bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:from-purple-600 hover:to-fuchsia-600 text-white font-bold px-3 py-1.5 rounded-xl text-[11px] sm:text-sm shadow-md ripple whitespace-nowrap flex items-center gap-1">
+          <i class="fas fa-hammer text-[9px] sm:text-xs"></i> <span>တူးမည်</span>
+        </button>
+      </div>
+    </div>`;
+
+  if (m.status === 'pending') return `
+    <div class="bg-amber-50 rounded-xl p-2.5 sm:p-3 shadow-sm border border-amber-200 card-hover">
+      <div class="flex items-center gap-2.5 sm:gap-3">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center text-amber-500 flex-shrink-0">
+          <i class="fas fa-clock text-sm"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-bold text-gray-700">${label}</div>
+          <span class="text-[10px] text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 pulse-dot inline-block"></span>Admin စစ်ဆေးနေသည်
+          </span>
+        </div>
+        <button disabled class="bg-amber-100 text-amber-500 font-bold px-3 py-1.5 rounded-xl text-[11px] whitespace-nowrap cursor-not-allowed opacity-70">
+          ⌛ စောင့်ဆိုင်း
+        </button>
+      </div>
+    </div>`;
+
+  if (m.status === 'rejected') return `
+    <div class="bg-red-50 rounded-xl p-2.5 sm:p-3 shadow-sm border border-red-200 card-hover">
+      <div class="flex items-center gap-2.5 sm:gap-3">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-red-100 flex items-center justify-center text-red-400 flex-shrink-0">
+          <i class="fas fa-times text-sm"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-bold text-gray-700">${label}</div>
+          <span class="text-[10px] text-red-500 bg-red-100 px-2 py-0.5 rounded-full">ငြင်းဆန်ခံရသည်</span>
+        </div>
+        <button onclick="openPurchaseModal(${slot})"
+                class="bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white font-bold px-3 py-1.5 rounded-xl text-[11px] shadow-md ripple whitespace-nowrap">
+          🔄 ပြန်တောင်း
+        </button>
+      </div>
+    </div>`;
+
+  if (m.status === 'active') {
+    const pend    = m.pendingEarn || 0;
+    const elapsed = m.lastCollect ? Date.now() - m.lastCollect : 0;
+    const prog    = Math.min((elapsed % MINE_INTERVAL) / MINE_INTERVAL * 100, 100).toFixed(1);
+    return `
+    <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-sm border border-emerald-200 miner-glow">
+      <div class="flex items-center gap-2.5 sm:gap-3 mb-2.5">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-emerald-100 to-green-100 flex items-center justify-center flex-shrink-0 text-lg">⛏️</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-bold text-gray-700">${label}</div>
+          <span class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 inline-flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot inline-block"></span>တူးနေသည် ✓
+          </span>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <div class="text-sm font-extrabold text-emerald-600" id="mEarn-${slot}">${fmtNum(pend)}</div>
+          <div class="text-[9px] text-gray-400">ကျပ် pending</div>
+        </div>
+      </div>
+      <!-- live animation -->
+      <div class="bg-emerald-50 rounded-lg p-2 mb-2.5 flex items-center justify-center gap-2">
+        <span class="pickaxe-swing text-base">⛏️</span>
+        <span class="rock-shake text-sm">🪨</span>
+        <span class="text-gray-400 text-xs">→</span>
+        <span class="text-base">💰</span>
+        <span class="text-[9px] text-emerald-600 font-semibold ml-1">ပိုက်ဆံတူးနေသည်...</span>
+      </div>
+      <!-- progress -->
+      <div class="mb-2.5">
+        <div class="flex justify-between text-[9px] text-gray-400 mb-1">
+          <span>နောက် collect အချိန်</span>
+          <span id="mTimer-${slot}" class="cd-badge font-semibold">—</span>
+        </div>
+        <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+          <div class="bg-gradient-to-r from-emerald-400 to-green-500 h-1.5 rounded-full earn-bar-fill" id="mBar-${slot}" style="width:${prog}%"></div>
+        </div>
+      </div>
+      <button onclick="collectEarnings()" id="mBtn-${slot}"
+              class="w-full py-2 rounded-xl text-xs font-bold ripple transition-all ${pend >= 100 ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-md' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}"
+              ${pend < 100 ? 'disabled' : ''}>
+        ${pend >= 100 ? `<i class="fas fa-arrow-down mr-1"></i>ထည့်သွင်းမည် (+${fmtNum(pend)} ကျပ်)` : '<i class="fas fa-clock mr-1"></i>စောင့်ဆိုင်းနေသည်...'}
+      </button>
+    </div>`;
+  }
+  return '';
 }
 
-function startMinerTimer(miner) {
-    const slot = miner.slotIndex;
-    let lastCollect = miner.lastCollect || Date.now();
-
-    activeMinerIntervals[slot] = setInterval(() => {
-        const elapsed   = Date.now() - lastCollect;
-        const progress  = Math.min((elapsed % MINE_INTERVAL) / MINE_INTERVAL * 100, 100);
-        const intervals = Math.floor(elapsed / MINE_INTERVAL);
-        const earned    = intervals * MINE_RATE + (miner.pendingEarn || 0);
-        const timeToNext = MINE_INTERVAL - (elapsed % MINE_INTERVAL);
-        const mins = Math.floor(timeToNext / 60000);
-        const secs = Math.floor((timeToNext % 60000) / 1000);
-
-        const barEl   = document.getElementById(`miner-bar-${slot}`);
-        const earnEl  = document.getElementById(`miner-earn-${slot}`);
-        const timerEl = document.getElementById(`miner-timer-${slot}`);
-        const btnEl   = document.getElementById(`miner-collect-btn-${slot}`);
-
-        if (barEl)  barEl.style.width = progress + '%';
-        if (earnEl) earnEl.textContent = Math.floor(earned).toLocaleString() + ' ကျပ်';
-        if (timerEl) timerEl.textContent = `${mins}:${String(secs).padStart(2,'0')}`;
-        if (btnEl) {
-            btnEl.disabled   = earned < 100;
-            btnEl.textContent = earned >= 100
-                ? `💰 ထည့်သွင်းမည် (+${Math.floor(earned).toLocaleString()} ကျပ်)`
-                : '⏳ မိနစ် ' + mins + ':' + String(secs).padStart(2,'0') + ' ကြာ...';
-        }
-
-        // Also update live earn display on home
-        const liveEl = document.getElementById('homeLiveEarn');
-        if (liveEl && userData) liveEl.textContent = Math.floor(earned).toLocaleString();
+function startMinerTimers() {
+  Object.values(minerTimers).forEach(clearInterval); minerTimers = {};
+  (userData?.miners||[]).filter(m=>m.status==='active').forEach(m => {
+    const slot = m.slotIndex, base = m.lastCollect || Date.now(), pBase = m.pendingEarn || 0;
+    minerTimers[slot] = setInterval(() => {
+      const elapsed  = Date.now() - base;
+      const prog     = Math.min((elapsed % MINE_INTERVAL) / MINE_INTERVAL * 100, 100);
+      const intervals= Math.floor(elapsed / MINE_INTERVAL);
+      const earned   = intervals * MINE_RATE + pBase;
+      const toNext   = MINE_INTERVAL - (elapsed % MINE_INTERVAL);
+      const mins     = Math.floor(toNext / 60000);
+      const secs     = Math.floor((toNext % 60000) / 1000);
+      const tStr     = `${mins}:${String(secs).padStart(2,'0')}`;
+      const barEl    = document.getElementById(`mBar-${slot}`);
+      const earnEl   = document.getElementById(`mEarn-${slot}`);
+      const tmrEl    = document.getElementById(`mTimer-${slot}`);
+      const btnEl    = document.getElementById(`mBtn-${slot}`);
+      if (barEl)  barEl.style.width = prog + '%';
+      if (earnEl) earnEl.textContent = fmtNum(earned);
+      if (tmrEl)  tmrEl.textContent  = tStr;
+      if (btnEl && earned >= 100) {
+        btnEl.disabled = false;
+        btnEl.className = 'w-full py-2 rounded-xl text-xs font-bold ripple transition-all bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-md';
+        btnEl.innerHTML = `<i class="fas fa-arrow-down mr-1"></i>ထည့်သွင်းမည် (+${fmtNum(earned)} ကျပ်)`;
+      } else if (btnEl) {
+        btnEl.innerHTML = `<i class="fas fa-clock mr-1"></i>${tStr} ကြာ...`;
+      }
+      const liveEl = document.getElementById('liveEarnAmt');
+      if (liveEl) liveEl.textContent = fmtNum(earned);
     }, 1000);
+  });
 }
 
-function startLiveCounters() {
-    // Additional global live update
-    setInterval(() => {
-        if (!userData) return;
-        // Recalculate all active miners pending earnings live
-        let total = 0;
-        (userData.miners || []).filter(m => m.status === 'active').forEach(m => {
-            const elapsed = Date.now() - m.lastCollect;
-            total += Math.floor(elapsed / MINE_INTERVAL) * MINE_RATE;
-        });
-        const liveEl = document.getElementById('homeLiveEarn');
-        if (liveEl) liveEl.textContent = total.toLocaleString();
-    }, 5000);
-}
-
-// =====================================================================
-// Purchase Miner Modal
-// =====================================================================
+// ====================================================
+// Purchase Modal
+// ====================================================
 function openPurchaseModal(slot) {
-    pendingPurchaseSlot = slot;
-    document.getElementById('purchaseModalSub').textContent = `Slot #${slot} — ${MINER_NAMES[slot]}`;
-    document.getElementById('purchaseModal').classList.add('show');
+  pendingSlot = slot;
+  document.getElementById('purchaseModalSub').textContent = `Slot #${slot} — မိုင်နာ ${MINER_LABELS[slot-1]}`;
+  const m = document.getElementById('purchaseModal');
+  m.style.display = 'flex'; m.classList.add('flex');
 }
 function closePurchaseModal() {
-    document.getElementById('purchaseModal').classList.remove('show');
-    pendingPurchaseSlot = null;
+  const m = document.getElementById('purchaseModal');
+  m.style.display = 'none'; pendingSlot = null;
 }
-
 async function confirmPurchase() {
-    if (!pendingPurchaseSlot) return;
-    const btn = document.getElementById('confirmPurchaseBtn');
-    btn.disabled    = true;
-    btn.textContent = '⏳ တောင်းဆိုနေသည်...';
-    try {
-        await api('POST', '/miners/purchase', { slotIndex: pendingPurchaseSlot });
-        closePurchaseModal();
-        toast('✅ တောင်းဆိုမှု ပြည့်ပြီ! Admin စစ်ဆေးမည်', 'success');
-        await loadUser();
-    } catch (e) {
-        toast('❌ ' + e.message, 'error');
-    } finally {
-        btn.disabled    = false;
-        btn.textContent = '✓ တောင်းဆိုမည်';
-    }
+  if (!pendingSlot) return;
+  const btn = document.getElementById('confirmPurchaseBtn');
+  btn.disabled = true; btn.textContent = '⏳ တောင်းဆိုနေသည်...';
+  try {
+    await api('POST', '/miners/purchase', { slotIndex: pendingSlot });
+    closePurchaseModal();
+    showToast('✅ Admin ကို တောင်းဆိုပြီး! စစ်ဆေးမည်', 'success');
+    createConfetti();
+    await loadUser();
+  } catch (e) {
+    showToast('❌ ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '✓ တောင်းဆိုမည်';
+  }
 }
 
-// =====================================================================
-// Collect Earnings
-// =====================================================================
 async function collectEarnings() {
-    const btn = document.getElementById('homeCollectBtn');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ ...'; }
-    try {
-        const res = await api('POST', '/miners/collect');
-        if (res.earned > 0) {
-            userData.balance = res.newBalance;
-            toast(`✅ +${res.earned.toLocaleString()} ကျပ် ထည့်သွင်းပြီး!`, 'success');
-            updateAllUI();
-        } else {
-            toast('⏳ ထုတ်ယူစရာ ငွေ မရှိသေးပါ', '');
-        }
-    } catch (e) {
-        toast('❌ ' + e.message, 'error');
-    } finally {
-        if (btn) { btn.disabled = false; btn.textContent = '⛏️ ဝင်ငွေ ထည့်သွင်းမည်'; }
+  try {
+    const res = await api('POST', '/miners/collect');
+    if (res.earned > 0) {
+      userData.balance = res.newBalance;
+      document.getElementById('balanceDisplay').textContent = fmtNum(res.newBalance);
+      showToast(`🎉 +${fmtNum(res.earned)} ကျပ် ထည့်သွင်းပြီး!`, 'success');
+      createConfetti();
+      await loadUser();
+    } else {
+      showToast('⏳ ထုတ်ယူစရာ ငွေ မရှိသေးပါ', 'gold');
     }
+  } catch (e) { showToast('❌ ' + e.message, 'error'); }
 }
 
-// =====================================================================
-// Tasks UI
-// =====================================================================
+// ====================================================
+// Tasks
+// ====================================================
 function renderTasks() {
-    const grid   = document.getElementById('tasksGrid');
-    const status = userData?.taskStatus || {};
-    const tasks  = ['task1', 'task2', 'task3', 'task4', 'task5'];
-
-    grid.innerHTML = tasks.map(tid => {
-        const ts    = status[tid] || { canClaim: true, remaining: 0 };
-        const icon  = TASK_ICONS[tid];
-        const name  = TASK_NAMES[tid];
-        const rew   = TASK_REWARDS[tid];
-
-        let btnClass = 'task-btn-watch';
-        let btnText  = '📺 ကြည့်မည်';
-        let cdText   = '';
-        let cardCls  = 'task-card available';
-
-        if (!ts.canClaim) {
-            const rem  = ts.remaining;
-            const mins = Math.floor(rem / 60000);
-            const secs = Math.floor((rem % 60000) / 1000);
-            cdText   = `⏳ ${mins}:${String(secs).padStart(2,'0')}`;
-            btnClass = 'task-btn-cooldown';
-            btnText  = `${mins}:${String(secs).padStart(2,'0')} စောင့်ပါ`;
-            cardCls  = 'task-card';
-        }
-
-        return `<div class="${cardCls}" id="task-card-${tid}">
-          <div class="task-icon">${icon}</div>
-          <div class="task-name">${name}</div>
-          <div class="task-reward-text">+${rew} ကျပ်</div>
-          <div class="task-cooldown" id="task-cd-${tid}">${cdText}</div>
-          <button class="task-btn ${btnClass}" id="task-btn-${tid}"
-            onclick="watchAd('${tid}')"
-            ${!ts.canClaim ? 'disabled' : ''}>
-            ${btnText}
-          </button>
-        </div>`;
-    }).join('');
-
-    // Start countdown timers
-    startTaskTimers();
+  const c = document.getElementById('tasksContainer');
+  const status = userData?.taskStatus || {};
+  c.innerHTML = ['task1','task2','task3','task4','task5'].map((tid, idx) => {
+    const ts    = status[tid] || { canClaim: true, remaining: 0 };
+    const icon  = TASK_ICONS[idx];
+    const canW  = ts.canClaim;
+    const mins  = canW ? 0 : Math.floor(ts.remaining / 60000);
+    const secs  = canW ? 0 : Math.floor((ts.remaining % 60000) / 1000);
+    const cdTxt = canW ? '' : `${mins}:${String(secs).padStart(2,'0')}`;
+    return `
+    <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-sm border ${canW ? 'border-purple-50':'border-gray-100'} card-hover transition-all" id="taskCard-${tid}">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0">
+            <i class="${icon} text-xs sm:text-sm"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <span class="text-[11px] sm:text-sm font-bold ${canW ? 'text-emerald-600 bg-emerald-50':'text-amber-600 bg-amber-50'} px-2 py-1 sm:px-3 sm:py-1.5 rounded-full inline-flex items-center gap-1 mm">
+              <i class="fas fa-star text-amber-500 text-[8px] sm:text-xs"></i>
+              ${canW ? '⭐ 300 ကျပ်ငွေ ရရှိမည်' : `<span class="cd-badge font-extrabold" id="taskCd-${tid}">${cdTxt}</span> စောင့်ပါ`}
+            </span>
+          </div>
+        </div>
+        <button onclick="watchAd('${tid}')" id="taskBtn-${tid}"
+                class="font-medium px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-sm shadow-md ripple flex-shrink-0 whitespace-nowrap flex items-center gap-1 transition-all duration-200 ${canW ? 'bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:from-purple-600 hover:to-fuchsia-600 text-white':'bg-gray-100 text-gray-400 cursor-not-allowed'}"
+                ${!canW ? 'disabled' : ''}>
+          <i class="fas ${canW ? 'fa-eye':'fa-clock'} text-[9px] sm:text-xs"></i>
+          <span>${canW ? 'ကြည့်မည်' : 'Cooldown'}</span>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-let taskTimerInterval = null;
 function startTaskTimers() {
-    if (taskTimerInterval) clearInterval(taskTimerInterval);
-    taskTimerInterval = setInterval(() => {
-        if (!userData?.taskStatus) return;
-        const now = Date.now();
-        for (const tid of ['task1','task2','task3','task4','task5']) {
-            const ts  = userData.taskStatus[tid];
-            if (!ts || ts.canClaim) continue;
-            const rem = Math.max(0, ts.remaining - (now - (userData._loadedAt || now)));
-            if (rem <= 0) {
-                ts.canClaim  = true;
-                ts.remaining = 0;
-                const btn = document.getElementById('task-btn-' + tid);
-                const cd  = document.getElementById('task-cd-' + tid);
-                const card= document.getElementById('task-card-' + tid);
-                if (btn)  { btn.disabled = false; btn.textContent = '📺 ကြည့်မည်'; btn.className = 'task-btn task-btn-watch'; }
-                if (cd)   cd.textContent = '';
-                if (card) card.className = 'task-card available';
-            } else {
-                const mins = Math.floor(rem / 60000);
-                const secs = Math.floor((rem % 60000) / 1000);
-                const txt  = `${mins}:${String(secs).padStart(2,'0')}`;
-                const cd   = document.getElementById('task-cd-' + tid);
-                const btn  = document.getElementById('task-btn-' + tid);
-                if (cd)  cd.textContent = '⏳ ' + txt;
-                if (btn) btn.textContent = txt + ' စောင့်ပါ';
-            }
+  if (taskTimerInterval) clearInterval(taskTimerInterval);
+  taskTimerInterval = setInterval(() => {
+    if (!userData?.taskStatus) return;
+    const now = Date.now();
+    ['task1','task2','task3','task4','task5'].forEach(tid => {
+      const ts = userData.taskStatus[tid];
+      if (!ts || ts.canClaim) return;
+      const rem = Math.max(0, ts.remaining - (now - (userData._loadedAt || now)));
+      if (rem <= 0) {
+        ts.canClaim = true;
+        const btn  = document.getElementById('taskBtn-' + tid);
+        const card = document.getElementById('taskCard-' + tid);
+        if (btn) {
+          btn.disabled = false;
+          btn.className = btn.className.replace('bg-gray-100 text-gray-400 cursor-not-allowed','bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:from-purple-600 hover:to-fuchsia-600 text-white');
+          btn.innerHTML = '<i class="fas fa-eye text-[9px] sm:text-xs"></i><span>ကြည့်မည်</span>';
         }
-    }, 1000);
+        if (card) card.className = card.className.replace('border-gray-100','border-purple-50');
+      } else {
+        const mins = Math.floor(rem / 60000);
+        const secs = Math.floor((rem % 60000) / 1000);
+        const txt  = `${mins}:${String(secs).padStart(2,'0')}`;
+        const cd   = document.getElementById('taskCd-' + tid);
+        const btn  = document.getElementById('taskBtn-' + tid);
+        if (cd)  cd.textContent = txt;
+        if (btn) btn.querySelector('span').textContent = txt;
+      }
+    });
+  }, 1000);
 }
 
-// =====================================================================
-// AdSgram — Watch Ad
-// =====================================================================
-function getAdController(blockId) {
-    if (!adControllers[blockId]) {
-        adControllers[blockId] = window.Adsgram?.init({ blockId });
-    }
-    return adControllers[blockId];
+function getAdCtrl() {
+  if (!adControllers[ADSGRAM_BLOCK]) adControllers[ADSGRAM_BLOCK] = window.Adsgram?.init({ blockId: ADSGRAM_BLOCK });
+  return adControllers[ADSGRAM_BLOCK];
 }
 
 async function watchAd(taskId) {
-    const btn = document.getElementById('task-btn-' + taskId);
-    if (btn) { btn.disabled = true; btn.textContent = '⌛ loading...'; btn.className = 'task-btn task-btn-loading'; }
-
-    try {
-        const adController = getAdController(ADSGRAM_BLOCK);
-        if (!adController) {
-            // Fallback if Adsgram not loaded
-            await claimTask(taskId);
-            return;
-        }
-
-        await adController.show();
-        // Ad watched successfully → claim reward
-        await claimTask(taskId);
-    } catch (err) {
-        console.warn('Ad dismissed or error:', err);
-        toast('ကြော်ငြာ မကြည့်ရသေးပါ', 'error');
-        if (btn) { btn.disabled = false; btn.textContent = '📺 ကြည့်မည်'; btn.className = 'task-btn task-btn-watch'; }
-    }
+  const btn = document.getElementById('taskBtn-' + taskId);
+  if (btn) { btn.disabled = true; btn.querySelector('span').textContent = 'loading...'; }
+  try {
+    const ctrl = getAdCtrl();
+    if (ctrl) await ctrl.show();
+    await claimTask(taskId);
+  } catch (e) {
+    showToast('ကြော်ငြာ မကြည့်ရသေးပါ', 'error');
+    if (btn) { btn.disabled = false; btn.querySelector('span').textContent = 'ကြည့်မည်'; }
+  }
 }
 
 async function claimTask(taskId) {
-    try {
-        const res = await api('POST', '/tasks/claim', { taskId });
-        userData.balance    = res.newBalance;
-        userData._loadedAt  = Date.now();
-        // Update task status
-        if (userData.taskStatus) {
-            userData.taskStatus[taskId] = { canClaim: false, remaining: 3 * 60 * 1000 };
-        }
-        toast(`✅ +${res.earned.toLocaleString()} ကျပ် ရရှိပြီ!`, 'success');
-        updateAllUI();
-    } catch (e) {
-        toast('❌ ' + e.message, 'error');
-        const btn = document.getElementById('task-btn-' + taskId);
-        if (btn) { btn.disabled = false; btn.textContent = '📺 ကြည့်မည်'; btn.className = 'task-btn task-btn-watch'; }
-    }
+  try {
+    const res = await api('POST', '/tasks/claim', { taskId });
+    userData.balance = res.newBalance;
+    if (!userData.taskStatus) userData.taskStatus = {};
+    userData.taskStatus[taskId] = { canClaim: false, remaining: 3 * 60 * 1000 };
+    userData._loadedAt = Date.now();
+    document.getElementById('balanceDisplay').textContent = fmtNum(res.newBalance);
+    showToast(`🎉 +${fmtNum(res.earned)} ကျပ် ရရှိပြီ!`, 'success');
+    createConfetti();
+    renderTasks(); startTaskTimers();
+  } catch (e) {
+    showToast('❌ ' + e.message, 'error');
+    const btn = document.getElementById('taskBtn-' + taskId);
+    if (btn) { btn.disabled = false; btn.querySelector('span').textContent = 'ကြည့်မည်'; }
+  }
 }
 
-// =====================================================================
-// Withdraw Page
-// =====================================================================
-let selectedMethod = 'kpay';
-
+// ====================================================
+// Withdraw
+// ====================================================
 function selectMethod(method) {
-    selectedMethod = method;
-    document.getElementById('tabKpay').classList.toggle('selected', method === 'kpay');
-    document.getElementById('tabWave').classList.toggle('selected', method === 'wavepay');
-    document.getElementById('wdAccountLabel').textContent = method === 'kpay' ? 'KPay အကောင့်နံပါတ်' : 'Wave Pay နံပါတ်';
-    document.getElementById('wdAccountNumber').placeholder = '09xxxxxxxxx';
+  selectedMethod = method;
+  const kEl = document.getElementById('tabKpay');
+  const wEl = document.getElementById('tabWave');
+  if (method === 'kpay') {
+    kEl.className = kEl.className.replace('border-gray-200 bg-white','border-purple-400 bg-purple-50');
+    wEl.className = wEl.className.replace('border-purple-400 bg-purple-50','border-gray-200 bg-white');
+  } else {
+    wEl.className = wEl.className.replace('border-gray-200 bg-white','border-purple-400 bg-purple-50');
+    kEl.className = kEl.className.replace('border-purple-400 bg-purple-50','border-gray-200 bg-white');
+  }
+  document.getElementById('wdAccLabel').textContent = method === 'kpay' ? 'KPay အကောင့်နံပါတ်' : 'Wave Pay နံပါတ်';
 }
 
-function updateWithdrawPage() {
-    if (!userData) return;
-    document.getElementById('wdBalance').textContent = Math.floor(userData.balance).toLocaleString() + ' ကျပ်';
+function updateWdBalance() {
+  document.getElementById('wdBalanceDisplay').textContent = fmtNum(userData?.balance || 0) + ' ကျပ်';
 }
 
 async function submitWithdraw() {
-    const amount   = document.getElementById('wdAmount').value;
-    const acNum    = document.getElementById('wdAccountNumber').value.trim();
-    const acName   = document.getElementById('wdAccountName').value.trim();
-    const btn      = document.getElementById('wdSubmitBtn');
-
-    if (!amount || Number(amount) < 50000) {
-        toast('❌ အနည်းဆုံး 50,000 ကျပ် ထုတ်ရပါမည်', 'error'); return;
-    }
-    if (!acNum) {
-        toast('❌ အကောင့်နံပါတ် ထည့်ပါ', 'error'); return;
-    }
-    if (userData && Number(amount) > userData.balance) {
-        toast('❌ လက်ကျန်ငွေ မလောက်ပါ', 'error'); return;
-    }
-
-    btn.disabled    = true;
-    btn.textContent = '⏳ တောင်းဆိုနေသည်...';
-
-    try {
-        const res = await api('POST', '/withdraw', {
-            amount: Number(amount), method: selectedMethod,
-            accountNumber: acNum, accountName: acName
-        });
-        userData.balance = res.newBalance;
-        toast('✅ ငွေထုတ်တောင်းဆိုမှု ပြည့်ပြီ! Admin စစ်ဆေးမည်', 'success');
-        document.getElementById('wdAmount').value        = '';
-        document.getElementById('wdAccountNumber').value = '';
-        document.getElementById('wdAccountName').value   = '';
-        updateWithdrawPage();
-        updateAllUI();
-    } catch (e) {
-        toast('❌ ' + e.message, 'error');
-    } finally {
-        btn.disabled    = false;
-        btn.textContent = '💸 ထုတ်ယူမည်';
-    }
+  const amount = document.getElementById('wdAmount').value;
+  const acNum  = document.getElementById('wdAccNum').value.trim();
+  const acName = document.getElementById('wdAccName').value.trim();
+  const btn    = document.getElementById('wdSubmitBtn');
+  if (!amount || Number(amount) < 50000)             { showToast('❌ အနည်းဆုံး 50,000 ကျပ် ထုတ်ရပါမည်', 'error'); return; }
+  if (!acNum)                                        { showToast('❌ အကောင့်နံပါတ် ထည့်ပါ', 'error'); return; }
+  if (Number(amount) > (userData?.balance || 0))     { showToast('❌ လက်ကျန်ငွေ မလောက်ပါ', 'error'); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>တောင်းဆိုနေသည်...';
+  try {
+    const res = await api('POST', '/withdraw', { amount: Number(amount), method: selectedMethod, accountNumber: acNum, accountName: acName });
+    userData.balance = res.newBalance;
+    document.getElementById('balanceDisplay').textContent = fmtNum(res.newBalance);
+    document.getElementById('wdAmount').value = ''; document.getElementById('wdAccNum').value = ''; document.getElementById('wdAccName').value = '';
+    updateWdBalance();
+    showToast('✅ ငွေထုတ်တောင်းဆိုမှု ပြည့်ပြီ!', 'success');
+  } catch (e) {
+    showToast('❌ ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>ထုတ်ယူမည်';
+  }
 }
 
-// =====================================================================
-// Invites Page
-// =====================================================================
+// ====================================================
+// Invites
+// ====================================================
 async function loadInvites() {
-    try {
-        const res  = document.getElementById('inviteList');
-        const data = await api('GET', '/invites');
-
-        document.getElementById('inviteHeroCount').textContent = data.count || 0;
-
-        if (!data.invites || data.invites.length === 0) {
-            res.innerHTML = `<div class="empty-state">
-              <div class="empty-icon">👥</div>
-              <p>မည်သူမျှ မဖိတ်ကြားရသေးပါ<br>သူငယ်ချင်းများကို ဖိတ်ကြားပြီး ပိုက်ဆံရှာပါ!</p>
-            </div>`;
-            return;
-        }
-
-        res.innerHTML = data.invites.map(inv => {
-            const initial = (inv.name || 'U')[0].toUpperCase();
-            const date    = new Date(inv.date).toLocaleDateString('my-MM');
-            return `<div class="invite-item">
-              <div class="invite-avatar">${initial}</div>
-              <div>
-                <div class="invite-name">${inv.name || 'User'}</div>
-                <div class="invite-date">${date}</div>
-              </div>
-              <div class="invite-reward-badge">+${(inv.reward || 2000).toLocaleString()} ကျပ်</div>
-            </div>`;
-        }).join('');
-    } catch (e) {
-        console.warn('loadInvites:', e.message);
+  try {
+    const data = await api('GET', '/invites');
+    document.getElementById('invHeroCount').textContent = data.count || 0;
+    const el = document.getElementById('inviteList');
+    if (!data.invites?.length) {
+      el.innerHTML = '<div class="text-center py-8 text-gray-400"><div class="text-3xl mb-2">👥</div><p class="text-xs mm">မည်သူမျှ မဖိတ်ကြားရသေးပါ</p></div>';
+      return;
     }
+    el.innerHTML = data.invites.map(inv => `
+      <div class="bg-white rounded-xl p-3 shadow-sm border border-amber-100 flex items-center gap-3 card-hover">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-extrabold flex-shrink-0">
+          ${(inv.name||'U')[0].toUpperCase()}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-bold text-gray-700 mm">${inv.name || 'User'}</div>
+          <div class="text-[10px] text-gray-400">${new Date(inv.date).toLocaleDateString()}</div>
+        </div>
+        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100 flex-shrink-0">
+          +${fmtNum(inv.reward||2000)} ကျပ်
+        </span>
+      </div>`).join('');
+  } catch (e) { console.warn('loadInvites:', e.message); }
 }
 
-// =====================================================================
-// Account Page
-// =====================================================================
-function updateAccountPage() {
-    if (!userData) return;
-    document.getElementById('acBalance').textContent = Math.floor(userData.balance).toLocaleString();
-    document.getElementById('acInvites').textContent = userData.inviteCount || 0;
-    const activeM = (userData.miners || []).filter(m => m.status === 'active').length;
-    document.getElementById('acMiners').textContent  = activeM;
-    document.getElementById('acRefCode').textContent = userData.referralCode || '—';
+// ====================================================
+// Account
+// ====================================================
+function updateAccount() {
+  if (!userData) return;
+  const name  = tgUser?.first_name || userData.firstName || 'User';
+  const actM  = (userData.miners||[]).filter(m=>m.status==='active').length;
+  document.getElementById('acAvatar').textContent  = (name[0]||'K').toUpperCase();
+  document.getElementById('acName').textContent    = name;
+  document.getElementById('acId').textContent      = 'ID: ' + (userData.userId||'—');
+  document.getElementById('acBalance').textContent = fmtNum(userData.balance);
+  document.getElementById('acInvites').textContent = userData.inviteCount || 0;
+  document.getElementById('acMiners').textContent  = actM;
+  document.getElementById('acRefCode').textContent = userData.referralCode || '—';
 }
 
-// =====================================================================
+// ====================================================
 // Invite Link
-// =====================================================================
+// ====================================================
 function copyInviteLink() {
-    if (!userData?.referralCode) { toast('ပထမဆုံး login ဝင်ပါ', 'error'); return; }
-    const link = `https://t.me/${botUsername}?start=${userData.referralCode}`;
-    if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(link).then(() => toast('✅ ချိတ်ဆက် ကူးပြီးပါပြီ!', 'success'));
-    } else {
-        // Telegram share fallback
-        tg?.openTelegramLink?.(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('Kyawngar နဲ့ပိုက်ဆံရှာပါ! 🪙')}`);
-        toast('✅ share ပြုလုပ်ပါ!', 'success');
-    }
+  if (!userData?.referralCode) { showToast('ပထမဆုံး login ဝင်ပါ','error'); return; }
+  const link = `https://t.me/${BOT_USERNAME}?start=${userData.referralCode}`;
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(link).then(() => showToast('✅ ချိတ်ဆက် ကူးပြီးပါပြီ!','success'));
+  } else if (tg?.openTelegramLink) {
+    tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('Kyawngar နဲ့ပိုက်ဆံရှာပါ! ⛏️💰')}`);
+    showToast('✅ Share ပြုလုပ်ပါ!','success');
+  }
 }
 
-// =====================================================================
+// ====================================================
+// Confetti
+// ====================================================
+function createConfetti() {
+  const colors = ['#c084fc','#f0abfc','#a855f7','#ec489a','#f59e0b','#34d399'];
+  for (let i = 0; i < 14; i++) {
+    const el = document.createElement('div');
+    el.textContent = '✦';
+    el.style.cssText = `position:fixed;left:50%;top:40%;font-size:14px;pointer-events:none;z-index:9999;font-weight:bold;color:${colors[i%colors.length]}`;
+    document.body.appendChild(el);
+    const angle = Math.random() * Math.PI * 2;
+    const v = 3 + Math.random() * 5;
+    let vx = Math.cos(angle)*v, vy = Math.sin(angle)*v - 3;
+    let px = window.innerWidth/2, py = window.innerHeight*0.4, op = 1;
+    (function anim() { px+=vx; py+=vy; vy+=0.25; op-=0.025; el.style.left=px+'px'; el.style.top=py+'px'; el.style.opacity=op; if(op>0) requestAnimationFrame(anim); else el.remove(); })();
+    setTimeout(() => el.remove(), 1000);
+  }
+}
+
+// ====================================================
 // INIT
-// =====================================================================
+// ====================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Set Telegram theme colors if available
-    if (tg?.colorScheme === 'dark') document.documentElement.style.setProperty('--bg', '#09090f');
-
-    loadUser();
-
-    // Refresh user data every 30 seconds
-    setInterval(loadUser, 30000);
+  loadUser();
+  setInterval(loadUser, 30000);
 });
 </script>
 </body>
