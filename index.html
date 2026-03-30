@@ -143,7 +143,7 @@
       <!-- Quick info card -->
       <div class="bg-gradient-to-r from-purple-50 to-fuchsia-50 rounded-xl p-3 border border-purple-100">
         <div class="text-xs text-gray-600 space-y-1.5 mm">
-          <div class="flex items-center gap-2"><i class="fas fa-hammer text-purple-400 w-4 text-center"></i> မိုင်နာ တစ်လုံး — <span class="font-bold text-purple-700">10 မိနစ်ကို 100 ကျပ်</span></div>
+          <div class="flex items-center gap-2"><i class="fas fa-hammer text-purple-400 w-4 text-center"></i> မိုင်နာ တစ်လုံး — <span class="font-bold text-purple-700">10 မိနစ်ကို 300 ကျပ်</span></div>
           <div class="flex items-center gap-2"><i class="fas fa-play-circle text-fuchsia-400 w-4 text-center"></i> တာဝန် 5 ခု ကြည့်ပြီး — <span class="font-bold text-fuchsia-700">300 ကျပ် × 5</span></div>
           <div class="flex items-center gap-2"><i class="fas fa-money-bill-wave text-emerald-400 w-4 text-center"></i> အနည်းဆုံး <span class="font-bold text-emerald-700">50,000 ကျပ်</span> ထုတ်နိုင်</div>
         </div>
@@ -379,17 +379,36 @@
 <div id="purchaseModal" class="fixed inset-0 z-[70] hidden items-end justify-center" style="background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);">
   <div class="bg-white rounded-t-2xl p-5 w-full max-w-md">
     <div class="text-base font-extrabold text-gray-800 mb-1">⛏️ မိုင်နာ ဝယ်ယူမည်</div>
-    <div class="text-xs text-gray-500 mb-4 mm" id="purchaseModalSub">Slot #1</div>
-    <div class="bg-purple-50 rounded-xl p-3 border border-purple-100 text-xs text-gray-600 mm mb-4 space-y-1.5 leading-relaxed">
-      <div>📌 ဤ slot activate လုပ်ရန် Admin ကို ငွေပေးချေပြီး screenshot ပို့ပါ</div>
-      <div>✅ Admin ခွင့်ပြုပြီးနောက် <strong class="text-purple-700">10 မိနစ်ကို 100 ကျပ်</strong> ဝင်လာမည်</div>
-      <div>📲 Admin: <strong class="text-purple-700">@Freeeemoneyyy_bot</strong></div>
+    <div class="text-xs text-gray-500 mb-3 mm" id="purchaseModalSub">Slot #1</div>
+
+    <!-- Payment Info -->
+    <div class="bg-amber-50 rounded-xl p-3 border border-amber-200 mb-3 text-xs mm space-y-2">
+      <div class="font-bold text-amber-700 flex items-center gap-1.5"><i class="fas fa-info-circle"></i> ငွေပေးချေနည်း</div>
+      <div class="bg-white rounded-lg p-2 border border-amber-100 space-y-1">
+        <div class="font-bold text-gray-700">📱 KPay</div>
+        <div class="text-gray-600">နံပါတ် : <strong class="text-purple-700 select-all">09783646736</strong></div>
+        <div class="text-gray-600">အမည် : <strong>Yee Mon Naing</strong></div>
+      </div>
+      <div class="bg-white rounded-lg p-2 border border-amber-100 space-y-1">
+        <div class="font-bold text-gray-700">🌊 WavePay</div>
+        <div class="text-gray-600">နံပါတ် : <strong class="text-purple-700 select-all">09790611406</strong></div>
+        <div class="text-gray-600">အမည် : <strong>Aye Thandar</strong></div>
+      </div>
     </div>
+
+    <!-- Steps -->
+    <div class="bg-purple-50 rounded-xl p-3 border border-purple-100 text-xs text-gray-600 mm mb-4 space-y-1.5 leading-relaxed">
+      <div>1️⃣ အထက်ပါ KPay / WavePay နံပါတ်သို့ ငွေလွှဲပါ</div>
+      <div>2️⃣ ငွေလွှဲပြီးနောက် Bot ထဲ screenshot ပေးပို့ပါ</div>
+      <div>3️⃣ Admin စစ်ဆေးပြီး <strong class="text-purple-700">10 မိနစ်ကို 300 ကျပ်</strong> ရရှိမည်</div>
+      <div class="text-purple-600 font-semibold">⚠️ App မပိတ်ပါနဲ့ — Telegram ပြင်ပမှာ ရှိနေပါ မိုင်နာ Auto အလုပ်လုပ်နေမည်</div>
+    </div>
+
     <div class="flex gap-2.5">
       <button onclick="closePurchaseModal()" class="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-sm font-semibold">မလုပ်တော့</button>
-      <button onclick="confirmPurchase()" id="confirmPurchaseBtn"
-              class="flex-[2] py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white text-sm font-bold ripple shadow-md">
-        ✓ တောင်းဆိုမည်
+      <button onclick="openBotForScreenshot()" id="confirmPurchaseBtn"
+              class="flex-[2] py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white text-sm font-bold ripple shadow-md flex items-center justify-center gap-1.5">
+        <i class="fas fa-camera text-xs"></i> Screenshot ပို့မည်
       </button>
     </div>
   </div>
@@ -408,10 +427,10 @@
 // CONFIG  ← ဒီနေရာ ပြောင်းပါ
 // ====================================================
 const API_BASE      = 'https://kyawngarbackend1.onrender.com/api';
-const ADSGRAM_BLOCK = 'YOUR_ADSGRAM_BLOCK_ID';
+const ADSGRAM_BLOCKS = ['26320', '26321', '26320', '26321', '26320']; // task1-5 rotate
 const BOT_USERNAME  = 'Freeeemoneyyy_bot';
 const MINE_INTERVAL = 10 * 60 * 1000;
-const MINE_RATE     = 100;
+const MINE_RATE     = 300;
 const TASK_ICONS    = ['fas fa-play','fas fa-clipboard-list','fas fa-user-friends','fas fa-calendar-check','fas fa-pen-fancy'];
 const TASK_NAMES    = ['တာဝန် ၁','တာဝန် ၂','တာဝန် ၃','တာဝန် ၄','တာဝန် ၅'];
 const MINER_LABELS  = ['Alpha','Beta','Gamma'];
@@ -667,21 +686,25 @@ function closePurchaseModal() {
   const m = document.getElementById('purchaseModal');
   m.style.display = 'none'; pendingSlot = null;
 }
-async function confirmPurchase() {
+async function openBotForScreenshot() {
   if (!pendingSlot) return;
-  const btn = document.getElementById('confirmPurchaseBtn');
-  btn.disabled = true; btn.textContent = '⏳ တောင်းဆိုနေသည်...';
+  // First register the purchase request on server
   try {
     await api('POST', '/miners/purchase', { slotIndex: pendingSlot });
-    closePurchaseModal();
-    showToast('✅ Admin ကို တောင်းဆိုပြီး! စစ်ဆေးမည်', 'success');
-    createConfetti();
-    await loadUser();
   } catch (e) {
-    showToast('❌ ' + e.message, 'error');
-  } finally {
-    btn.disabled = false; btn.textContent = '✓ တောင်းဆိုမည်';
+    // Might already be pending — that's ok
   }
+  closePurchaseModal();
+  showToast('✅ Bot ထဲ screenshot ပေးပို့ပါ!', 'success');
+  // Open bot chat so user can send screenshot
+  if (tg?.openTelegramLink) {
+    tg.openTelegramLink(`https://t.me/Freeeemoneyyy_bot?text=မိုင်နာ Slot %23${pendingSlot || 1} ငွေပေးချေမှု screenshot`);
+  }
+  await loadUser();
+}
+// Keep old confirmPurchase for backward compat
+async function confirmPurchase() {
+  await openBotForScreenshot();
 }
 
 async function collectEarnings() {
@@ -769,16 +792,18 @@ function startTaskTimers() {
   }, 1000);
 }
 
-function getAdCtrl() {
-  if (!adControllers[ADSGRAM_BLOCK]) adControllers[ADSGRAM_BLOCK] = window.Adsgram?.init({ blockId: ADSGRAM_BLOCK });
-  return adControllers[ADSGRAM_BLOCK];
+function getAdCtrl(taskId) {
+  const idx = parseInt(taskId.replace('task','')) - 1;
+  const blockId = ADSGRAM_BLOCKS[idx] || ADSGRAM_BLOCKS[0];
+  if (!adControllers[blockId]) adControllers[blockId] = window.Adsgram?.init({ blockId: blockId });
+  return adControllers[blockId];
 }
 
 async function watchAd(taskId) {
   const btn = document.getElementById('taskBtn-' + taskId);
   if (btn) { btn.disabled = true; btn.querySelector('span').textContent = 'loading...'; }
   try {
-    const ctrl = getAdCtrl();
+    const ctrl = getAdCtrl(taskId);
     if (ctrl) await ctrl.show();
     await claimTask(taskId);
   } catch (e) {
@@ -900,11 +925,18 @@ function updateAccount() {
 function copyInviteLink() {
   if (!userData?.referralCode) { showToast('ပထမဆုံး login ဝင်ပါ','error'); return; }
   const link = `https://t.me/${BOT_USERNAME}?start=${userData.referralCode}`;
-  if (navigator.clipboard?.writeText) {
-    navigator.clipboard.writeText(link).then(() => showToast('✅ ချိတ်ဆက် ကူးပြီးပါပြီ!','success'));
-  } else if (tg?.openTelegramLink) {
-    tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('Kyawngar နဲ့ပိုက်ဆံရှာပါ! ⛏️💰')}`);
-    showToast('✅ Share ပြုလုပ်ပါ!','success');
+  const shareText =
+    `💰 အိမ်မှာနေရင်း ဖုန်းတစ်လုံးနဲ့ ငွေရှာကြစို့!\n` +
+    `Kyaw Ngar Mining မှာ Miner ဝယ်ထားရုံနဲ့ ၁၀ မိနစ်တိုင်း ၃၀၀ ကျပ် အလိုအလျောက် တိုးနေမှာပါ။\n` +
+    ` Tasks တွေလုပ်ပြီးတော့လည်း ကြော်ငြာတစ်ခါကြည့် ၃၀၀ ကျပ် ရဦးမှာနော်။\n\n` +
+    `🎁 အခုပဲ အောက်က Link နဲ့ဝင်ပြီး Register လုပ်လိုက်တာနဲ့ Referral Bonus တွေပါ ရရှိနိုင်ပါတယ်။\n` +
+    `👇 ဒီမှာစတင်ပါ-\n` +
+    link;
+  if (tg?.openTelegramLink) {
+    tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`);
+    showToast('✅ Chat ရွေးချယ်ပြီး Share လုပ်ပါ!','success');
+  } else if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(link).then(() => showToast('✅ Link ကူးပြီးပါပြီ!','success'));
   }
 }
 
