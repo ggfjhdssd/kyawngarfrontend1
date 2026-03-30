@@ -1,580 +1,1096 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>TaskFlow • Mobile Earnings</title>
-  <!-- Tailwind CSS v3 + Font Awesome 6 -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    /* custom styles for better Myanmar text rendering and balance */
-    body {
-      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, 'Noto Sans Myanmar', sans-serif;
-      background: linear-gradient(145deg, #f5f3ff 0%, #fae8ff 100%);
-      min-height: 100vh;
-    }
-    
-    /* smooth card transitions */
-    .task-card-hover {
-      transition: all 0.2s ease;
-    }
-    .task-card-hover:active {
-      transform: scale(0.98);
-    }
-    
-    /* custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 4px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #d8b4fe;
-      border-radius: 10px;
-    }
-    
-    /* ripple effect for buttons */
-    .claim-btn-ripple {
-      position: relative;
-      overflow: hidden;
-    }
-    .claim-btn-ripple:after {
-      content: "";
-      display: block;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.4) 10%, transparent 10%);
-      background-repeat: no-repeat;
-      background-position: 50%;
-      transform: scale(10);
-      opacity: 0;
-      transition: transform 0.4s, opacity 0.6s;
-    }
-    .claim-btn-ripple:active:after {
-      transform: scale(0);
-      opacity: 0.4;
-      transition: 0s;
-    }
-    
-    /* ensure text never overflows */
-    .reward-text {
-      word-break: keep-all;
-      white-space: normal;
-      line-height: 1.4;
-    }
-    
-    /* improve Myanmar text readability */
-    .myanmar-friendly {
-      line-height: 1.5;
-      letter-spacing: -0.2px;
-    }
-    
-    /* task card inner alignment fix */
-    .task-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
-      width: 100%;
-    }
-    
-    /* responsive text sizing */
-    @media (max-width: 480px) {
-      .reward-badge-text {
-        font-size: 0.75rem;
-        padding: 0.5rem 0.875rem;
-      }
-      .invite-reward-text {
-        font-size: 0.8rem;
-      }
-      .claim-btn-size {
-        padding: 0.5rem 1rem;
-        font-size: 0.75rem;
-      }
-    }
-  </style>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Kyawngar • ပိုက်ဆံရှာမည်</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#09090f;--bg2:#111118;--bg3:#1a1a24;--bg4:#22222e;
+  --gold:#f5c518;--gold2:#e8b000;--gold3:#ffd966;
+  --green:#22c55e;--red:#ef4444;--blue:#3b82f6;
+  --text:#f0f0f0;--text2:#a0a0b8;--text3:#6b6b88;
+  --border:rgba(245,197,24,0.15);--border2:rgba(255,255,255,0.06);
+  --font:'Noto Sans Myanmar',system-ui,sans-serif;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden;}
+body{display:flex;flex-direction:column;}
+
+/* ====== BG Glow ====== */
+.bg-glow{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.bg-glow::before{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(245,197,24,.08),transparent 70%);top:-100px;left:-150px;border-radius:50%;}
+.bg-glow::after{content:'';position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(245,197,24,.06),transparent 70%);bottom:-100px;right:-100px;border-radius:50%;}
+
+/* ====== Layout ====== */
+.app{position:relative;z-index:1;display:flex;flex-direction:column;height:100vh;max-width:430px;margin:0 auto;}
+.header{padding:14px 16px 10px;background:var(--bg2);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.header-brand{display:flex;align-items:center;gap:10px;}
+.header-logo{width:36px;height:36px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 12px rgba(245,197,24,.3);}
+.header-name{font-size:16px;font-weight:700;color:var(--gold);}
+.header-sub{font-size:11px;color:var(--text3);}
+.header-balance{display:flex;align-items:center;gap:6px;background:rgba(245,197,24,.08);border:1px solid var(--border);border-radius:20px;padding:6px 12px;}
+.header-balance-num{font-size:14px;font-weight:700;color:var(--gold);}
+
+/* ====== Pages ====== */
+.pages{flex:1;overflow:hidden;position:relative;}
+.page{position:absolute;inset:0;overflow-y:auto;padding:16px;display:none;flex-direction:column;gap:12px;padding-bottom:80px;}
+.page.active{display:flex;}
+.page::-webkit-scrollbar{width:3px;}
+.page::-webkit-scrollbar-thumb{background:rgba(245,197,24,.2);border-radius:3px;}
+
+/* ====== Bottom Nav ====== */
+.bottom-nav{height:60px;background:var(--bg2);border-top:1px solid var(--border2);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 4px;cursor:pointer;border:none;background:none;color:var(--text3);transition:color .2s;-webkit-tap-highlight-color:transparent;}
+.nav-btn.active{color:var(--gold);}
+.nav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.nav-btn span{font-size:9px;font-family:var(--font);}
+.nav-btn.active svg{filter:drop-shadow(0 0 4px rgba(245,197,24,.5));}
+
+/* ====== Cards ====== */
+.card{background:var(--bg3);border:1px solid var(--border2);border-radius:16px;padding:16px;position:relative;overflow:hidden;}
+.card-gold{border-color:var(--border);}
+.card h3{font-size:14px;font-weight:700;margin-bottom:10px;color:var(--text);}
+
+/* ====== Home Page ====== */
+.balance-card{background:linear-gradient(135deg,var(--bg3),var(--bg4));border:1px solid var(--border);}
+.balance-card .amount{font-size:32px;font-weight:700;color:var(--gold);text-shadow:0 0 20px rgba(245,197,24,.3);margin:4px 0;}
+.balance-card .amount-label{font-size:11px;color:var(--text3);}
+.balance-card .collect-btn{width:100%;margin-top:12px;padding:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#000;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font);transition:opacity .2s;}
+.balance-card .collect-btn:active{opacity:.8;}
+.balance-card .collect-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat-card{background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:12px;}
+.stat-card .stat-icon{font-size:20px;margin-bottom:4px;}
+.stat-card .stat-num{font-size:20px;font-weight:700;color:var(--gold);}
+.stat-card .stat-label{font-size:10px;color:var(--text3);margin-top:2px;}
+
+.invite-card{background:linear-gradient(135deg,rgba(245,197,24,.06),rgba(245,197,24,.02));border:1px solid var(--border);border-radius:14px;padding:14px;}
+.invite-card p{font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.5;}
+.copy-btn{width:100%;padding:10px;background:rgba(245,197,24,.1);border:1px solid var(--border);border-radius:10px;color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:background .2s;}
+.copy-btn:active{background:rgba(245,197,24,.2);}
+
+/* ====== Earn Page (Mining) ====== */
+.earn-header{background:linear-gradient(135deg,rgba(245,197,24,.1),rgba(245,197,24,.04));border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center;}
+.earn-header h2{font-size:16px;font-weight:700;color:var(--gold);margin-bottom:4px;}
+.earn-header p{font-size:11px;color:var(--text3);}
+
+.miners-section h3{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
+
+/* Miner Card */
+.miner-card{background:var(--bg3);border:1px solid var(--border2);border-radius:16px;padding:14px;position:relative;overflow:hidden;transition:border-color .3s;}
+.miner-card.active{border-color:rgba(34,197,94,.4);background:linear-gradient(135deg,rgba(34,197,94,.04),var(--bg3));}
+.miner-card.pending{border-color:rgba(245,197,24,.3);}
+.miner-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.miner-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.miner-icon.idle{background:var(--bg4);}
+.miner-icon.active-bg{background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(34,197,94,.05));animation:minerGlow 2s infinite alternate;}
+.miner-icon.pending-bg{background:linear-gradient(135deg,rgba(245,197,24,.15),rgba(245,197,24,.05));}
+@keyframes minerGlow{from{box-shadow:0 0 0 rgba(34,197,94,.2);}to{box-shadow:0 0 12px rgba(34,197,94,.4);}}
+.miner-info{flex:1;}
+.miner-name{font-size:13px;font-weight:700;}
+.miner-status-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:20px;margin-top:3px;}
+.badge-idle{background:var(--bg4);color:var(--text3);}
+.badge-pending{background:rgba(245,197,24,.1);color:var(--gold);border:1px solid rgba(245,197,24,.3);}
+.badge-active{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3);}
+.badge-rejected{background:rgba(239,68,68,.1);color:var(--red);}
+.badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+.badge-dot.pulse{animation:dotPulse 1s infinite;}
+@keyframes dotPulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* Mining Animation */
+.mining-live{margin:10px 0;padding:10px;background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.1);border-radius:10px;text-align:center;}
+.pickaxe-row{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px;}
+.pickaxe{font-size:20px;animation:swing .6s ease-in-out infinite alternate;transform-origin:bottom right;}
+@keyframes swing{from{transform:rotate(-30deg);}to{transform:rotate(10deg);}}
+.rock{font-size:18px;animation:shake .6s ease-in-out infinite;}
+@keyframes shake{0%,100%{transform:translate(0,0);}25%{transform:translate(-1px,1px);}75%{transform:translate(1px,-1px);}}
+.mining-rate{font-size:10px;color:var(--green);}
+.mining-earn{font-size:16px;font-weight:700;color:var(--green);margin-bottom:2px;}
+
+/* Miner earnings progress */
+.earn-bar-wrap{margin:8px 0;}
+.earn-bar-label{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:4px;}
+.earn-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.earn-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),#4ade80);border-radius:2px;transition:width 1s linear;}
+
+.miner-btn{width:100%;padding:10px;border-radius:10px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;}
+.miner-btn-buy{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;}
+.miner-btn-buy:active{opacity:.8;}
+.miner-btn-pending{background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.3);color:var(--gold);cursor:default;}
+.miner-btn-collect{background:linear-gradient(135deg,var(--green),#16a34a);color:#fff;}
+.miner-btn-collect:active{opacity:.8;}
+.miner-btn-collect:disabled{background:var(--bg4);color:var(--text3);cursor:not-allowed;}
+.miner-btn-rejected{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:var(--red);cursor:default;}
+
+/* Tasks Section */
+.tasks-section{margin-top:4px;}
+.tasks-section h3{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
+.tasks-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.task-card{background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;transition:border-color .2s;}
+.task-card.available{border-color:rgba(245,197,24,.25);}
+.task-icon{font-size:24px;}
+.task-name{font-size:12px;font-weight:600;}
+.task-reward-text{font-size:11px;color:var(--gold);}
+.task-cooldown{font-size:10px;color:var(--text3);font-variant-numeric:tabular-nums;}
+.task-btn{width:100%;padding:8px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;}
+.task-btn-watch{background:linear-gradient(135deg,rgba(245,197,24,.15),rgba(245,197,24,.05));border:1px solid var(--border);color:var(--gold);}
+.task-btn-watch:active{background:rgba(245,197,24,.25);}
+.task-btn-cooldown{background:var(--bg4);color:var(--text3);cursor:not-allowed;}
+.task-btn-loading{background:rgba(245,197,24,.08);color:var(--gold);cursor:wait;opacity:.7;}
+
+/* ====== Withdraw Page ====== */
+.notice-box{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:12px;padding:12px;display:flex;gap:8px;}
+.notice-icon{font-size:18px;flex-shrink:0;}
+.notice-text{font-size:11px;color:var(--text2);line-height:1.6;}
+.notice-text strong{color:var(--blue);}
+
+.wd-form{display:flex;flex-direction:column;gap:12px;}
+.form-label{font-size:12px;color:var(--text2);margin-bottom:6px;display:block;}
+.form-input{width:100%;padding:11px 14px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:14px;font-family:var(--font);outline:none;transition:border-color .2s;}
+.form-input:focus{border-color:var(--border);}
+.form-input::placeholder{color:var(--text3);}
+
+.method-tabs{display:flex;gap:8px;}
+.method-tab{flex:1;padding:10px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;text-align:center;cursor:pointer;transition:all .2s;font-size:12px;font-weight:600;color:var(--text2);}
+.method-tab.selected{background:rgba(245,197,24,.1);border-color:var(--border);color:var(--gold);}
+.method-tab-icon{font-size:18px;display:block;margin-bottom:4px;}
+
+.wd-submit{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:12px;color:#000;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font);transition:opacity .2s;}
+.wd-submit:active{opacity:.8;}
+.wd-submit:disabled{opacity:.5;cursor:not-allowed;}
+
+.wd-balance-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:rgba(245,197,24,.06);border:1px solid var(--border);border-radius:10px;}
+.wd-balance-row .label{font-size:11px;color:var(--text3);}
+.wd-balance-row .value{font-size:15px;font-weight:700;color:var(--gold);}
+
+/* ====== Invites Page ====== */
+.invite-hero{background:linear-gradient(135deg,rgba(245,197,24,.1),rgba(245,197,24,.04));border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center;}
+.invite-hero .big-num{font-size:40px;font-weight:700;color:var(--gold);line-height:1;}
+.invite-hero .big-label{font-size:11px;color:var(--text3);margin-top:4px;}
+.invite-hero .reward-info{margin-top:8px;font-size:12px;color:var(--text2);}
+
+.invite-list{display:flex;flex-direction:column;gap:8px;}
+.invite-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;}
+.invite-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#000;flex-shrink:0;}
+.invite-name{flex:1;font-size:13px;font-weight:600;}
+.invite-date{font-size:10px;color:var(--text3);}
+.invite-reward-badge{font-size:11px;font-weight:700;color:var(--green);background:rgba(34,197,94,.1);padding:3px 8px;border-radius:20px;}
+
+.empty-state{text-align:center;padding:30px 16px;color:var(--text3);}
+.empty-state .empty-icon{font-size:36px;margin-bottom:8px;}
+.empty-state p{font-size:12px;line-height:1.6;}
+
+/* ====== Account Page ====== */
+.profile-card{background:var(--bg3);border:1px solid var(--border2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px;}
+.profile-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#000;flex-shrink:0;}
+.profile-name{font-size:16px;font-weight:700;}
+.profile-id{font-size:11px;color:var(--text3);margin-top:2px;}
+
+.account-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.acstat{background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:14px;text-align:center;}
+.acstat .ac-val{font-size:22px;font-weight:700;color:var(--gold);margin:4px 0;}
+.acstat .ac-label{font-size:10px;color:var(--text3);}
+.acstat .ac-icon{font-size:20px;}
+
+.referral-card{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:14px;}
+.referral-card h3{font-size:13px;font-weight:700;margin-bottom:8px;}
+.ref-code-box{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg4);border-radius:10px;margin-bottom:10px;}
+.ref-code{flex:1;font-size:13px;font-weight:600;color:var(--gold);word-break:break-all;}
+.ref-copy{padding:5px 10px;background:rgba(245,197,24,.1);border:1px solid var(--border);border-radius:8px;color:var(--gold);font-size:11px;cursor:pointer;white-space:nowrap;font-family:var(--font);}
+
+/* ====== Toast ====== */
+.toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);border-radius:100px;padding:9px 18px;color:var(--text);font-size:12px;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.success{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.3);color:var(--green);}
+.toast.error{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.3);color:var(--red);}
+.toast.gold{background:rgba(245,197,24,.15);border-color:rgba(245,197,24,.3);color:var(--gold);}
+
+/* ====== Loading Spinner ====== */
+.spinner{width:20px;height:20px;border:2px solid rgba(245,197,24,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ====== Ad Overlay ====== */
+.ad-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:8000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.ad-overlay.show{display:flex;}
+.ad-circle{width:80px;height:80px;border-radius:50%;border:3px solid var(--gold);background:rgba(245,197,24,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ad-circle .cd{font-size:26px;font-weight:700;color:var(--gold);}
+.ad-circle .sec-lbl{font-size:10px;color:var(--text3);}
+.ad-title{font-size:15px;font-weight:700;color:var(--gold);}
+.ad-sub{font-size:12px;color:var(--text3);}
+
+/* ====== Purchase Modal ====== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:7000;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--bg2);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:430px;border-top:1px solid var(--border2);}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:4px;}
+.modal-sub{font-size:12px;color:var(--text3);margin-bottom:16px;}
+.modal-info-box{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.7;}
+.modal-info-box strong{color:var(--gold);}
+.modal-buttons{display:flex;gap:10px;}
+.modal-btn-cancel{flex:1;padding:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);}
+.modal-btn-confirm{flex:2;padding:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);}
+.modal-btn-confirm:active{opacity:.8;}
+
+/* Animate page transitions */
+.page{animation:fadeUp .25s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* Section headers */
+.section-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:4px 0;}
+</style>
 </head>
-<body class="flex items-center justify-center p-3 sm:p-4 min-h-screen">
+<body>
+<div class="bg-glow"></div>
 
-  <!-- Main App Container - fully responsive with balanced max-width -->
-  <div class="w-full max-w-md mx-auto bg-white/95 backdrop-blur-sm shadow-2xl rounded-3xl overflow-hidden border border-white/60"
-       style="background: rgba(255,255,252,0.96); backdrop-filter: blur(2px);">
-    
-    <!-- Content Padding - balanced left/right spacing -->
-    <div class="px-4 sm:px-5 pt-5 pb-24 relative">
-      
-      <!-- Header with Profile + Greeting - perfectly aligned -->
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-3">
-          <div class="relative flex-shrink-0">
-            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-purple-500 to-fuchsia-500 p-[2px]">
-              <div class="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
-                <img src="https://ui-avatars.com/api/?background=c084fc&color=fff&bold=true&size=48&name=Smith&fontsize=24" 
-                     alt="Profile" class="w-full h-full object-cover">
-              </div>
-            </div>
-            <div class="absolute -bottom-0.5 -right-0.5 bg-green-500 border-2 border-white rounded-full w-3 h-3 sm:w-3.5 sm:h-3.5"></div>
-          </div>
-          <div>
-            <h1 class="text-xl sm:text-2xl font-extrabold bg-gradient-to-r from-purple-700 to-fuchsia-700 bg-clip-text text-transparent">Hi, Smith!</h1>
-            <p class="text-[11px] sm:text-xs text-gray-500 font-medium flex items-center gap-1 mt-0.5"><i class="fas fa-sun text-amber-400 text-[10px]"></i> Welcome Back</p>
-          </div>
-        </div>
-        <div class="bg-white/70 rounded-full w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shadow-sm border border-purple-100 flex-shrink-0">
-          <i class="far fa-bell text-purple-600 text-base sm:text-lg"></i>
-        </div>
-      </div>
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
-      <!-- Total Earnings Card - balanced internal spacing -->
-      <div class="bg-gradient-to-br from-purple-600 via-fuchsia-600 to-purple-700 rounded-2xl p-4 sm:p-5 mb-6 shadow-xl shadow-purple-200/50 relative overflow-hidden">
-        <div class="absolute -top-8 -right-8 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-        <div class="absolute bottom-0 left-0 w-32 h-32 bg-purple-400/20 rounded-full blur-3xl"></div>
-        <div class="relative z-10">
-          <div class="flex items-center gap-2 text-white/80 text-xs sm:text-sm font-medium mb-1.5">
-            <i class="fas fa-wallet text-amber-300 text-xs sm:text-sm"></i>
-            <span>TOTAL EARNINGS</span>
-          </div>
-          <div class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-1 flex items-baseline flex-wrap gap-1">
-            MMK 250,000
-            <span class="text-xs sm:text-sm font-normal text-white/70">Kyat</span>
-          </div>
-          <div class="flex justify-between items-center mt-2 gap-2 flex-wrap">
-            <p class="text-purple-100 text-[10px] sm:text-xs flex items-center gap-1"><i class="fas fa-arrow-down text-[8px]"></i> Available for withdrawal</p>
-            <div class="bg-white/20 rounded-full px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-[11px] font-semibold text-white backdrop-blur-sm whitespace-nowrap">
-              <i class="fas fa-credit-card mr-1"></i> Withdraw
-            </div>
-          </div>
-        </div>
-      </div>
+<!-- Ad Overlay -->
+<div class="ad-overlay" id="adOverlay">
+  <div class="ad-circle">
+    <div class="cd" id="adCountdown">5</div>
+    <div class="sec-lbl">sec</div>
+  </div>
+  <div class="ad-title">ကြော်ငြာ ကြည့်နေသည်...</div>
+  <div class="ad-sub" id="adSubText">ပြည့်ပြီးနောက် ဆုကြေး ရရှိမည်</div>
+</div>
 
-      <!-- ========== INVITE FRIEND SECTION - IMPROVED FLEX LAYOUT ========== -->
-      <div class="mb-6">
-        <div class="flex items-baseline justify-between mb-3">
-          <h2 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
-            <i class="fas fa-user-plus text-amber-500 text-sm"></i>
-            <span>Referral Bonus</span>
-          </h2>
-          <span class="text-[10px] sm:text-[11px] font-medium text-amber-600 bg-amber-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full whitespace-nowrap">unlimited</span>
-        </div>
-        
-        <!-- Invite Card - improved flex with proper wrap and center alignment -->
-        <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-3 sm:p-4 shadow-md border border-amber-200 transition-all task-card-hover relative overflow-hidden">
-          <div class="absolute top-0 right-0 w-20 h-20 bg-amber-200/30 rounded-full blur-2xl"></div>
-          <div class="flex items-center gap-3 sm:gap-4 flex-nowrap">
-            <!-- Icon - fixed size -->
-            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg flex-shrink-0">
-              <i class="fas fa-gift text-white text-base sm:text-xl"></i>
-            </div>
-            <!-- Text content - flexible with proper line-height -->
-            <div class="flex-1 min-w-0">
-              <div class="reward-invite">
-                <span class="text-xs sm:text-sm md:text-base font-bold text-amber-700 bg-amber-100 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-full inline-flex items-center gap-1.5 flex-wrap reward-text myanmar-friendly">
-                  <i class="fas fa-star text-amber-500 text-[10px] sm:text-xs"></i> 
-                  <span>⭐ သူငယ်ချင်းတစ်ယောက်ဖိတ်တိုင်း 3000 ကျပ်ငွေ ရရှိမည်</span>
-                </span>
-              </div>
-              <p class="text-[10px] sm:text-xs text-gray-500 mt-1.5 flex items-center gap-1">
-                <i class="fas fa-users text-amber-400 text-[9px]"></i> Invite friends & earn instantly
-              </p>
-            </div>
-            <!-- Button - properly sized and centered -->
-            <button id="inviteFriendBtn" class="invite-claim-btn bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-xl shadow-md transition-all duration-200 flex items-center gap-1.5 claim-btn-ripple flex-shrink-0 text-xs sm:text-sm whitespace-nowrap">
-              <i class="fas fa-share-alt text-[10px] sm:text-xs"></i> 
-              <span>ဖိတ်မည်</span>
-            </button>
-          </div>
-        </div>
-      </div>
+<!-- Purchase Modal -->
+<div class="modal-overlay" id="purchaseModal">
+  <div class="modal">
+    <div class="modal-title">⛏️ မိုင်နာ ဝယ်ယူမည်</div>
+    <div class="modal-sub" id="purchaseModalSub">Slot #1 မိုင်နာ</div>
+    <div class="modal-info-box">
+      မိုင်နာ တစ်လုံး activate လုပ်ရန် admin ကို ငွေပေးချေပြီး screenshot ပို့ပါ။<br><br>
+      ✅ Admin ခွင့်ပြုပြီးနောက် <strong>10 မိနစ်ကို 100 ကျပ်</strong> ရရှိမည်<br>
+      📲 Admin: <strong id="adminContact">@kyawngar_admin</strong><br><br>
+      <strong>တောင်းဆိုမှုပြီးနောက် admin နှင့်ဆက်သွယ်ပါ</strong>
+    </div>
+    <div class="modal-buttons">
+      <button class="modal-btn-cancel" onclick="closePurchaseModal()">မလုပ်တော့</button>
+      <button class="modal-btn-confirm" id="confirmPurchaseBtn" onclick="confirmPurchase()">✓ တောင်းဆိုမည်</button>
+    </div>
+  </div>
+</div>
 
-      <!-- Daily Rewards Header -->
-      <div class="flex items-baseline justify-between mb-3 mt-1">
-        <h2 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
-          <i class="fas fa-tasks text-purple-500 text-sm"></i>
-          <span>Daily Rewards</span>
-        </h2>
-        <span class="text-[10px] sm:text-[11px] font-medium text-purple-500 bg-purple-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full whitespace-nowrap">+ bonus streak</span>
-      </div>
-
-      <!-- Task List - Improved cards with perfect vertical center alignment -->
-      <div class="space-y-2.5 sm:space-y-3">
-        
-        <!-- Task 1 - Watch short video -->
-        <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-sm border border-purple-50 transition-all task-card-hover">
-          <div class="task-row">
-            <div class="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
-              <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0">
-                <i class="fas fa-play text-xs sm:text-sm"></i>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="reward-only">
-                  <span class="text-[11px] sm:text-sm md:text-base font-bold text-emerald-600 bg-emerald-50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full inline-flex items-center gap-1 reward-text myanmar-friendly whitespace-normal">
-                    <i class="fas fa-star text-amber-500 text-[8px] sm:text-xs"></i> 
-                    ⭐ 300 ကျပ်ငွေ ရရှိမည်
-                  </span>
-                </div>
-              </div>
-            </div>
-            <button class="claim-task-btn bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:from-purple-600 hover:to-fuchsia-600 text-white font-medium px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-sm shadow-md transition-all duration-200 flex items-center gap-1 claim-btn-ripple flex-shrink-0 whitespace-nowrap">
-              <i class="fas fa-eye text-[9px] sm:text-xs"></i> 
-              <span>ကြည့်မည်</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Task 2 - Complete a quick survey -->
-        <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-sm border border-purple-50 transition-all task-card-hover">
-          <div class="task-row">
-            <div class="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
-              <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0">
-                <i class="fas fa-clipboard-list text-xs sm:text-sm"></i>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="reward-only">
-                  <span class="text-[11px] sm:text-sm md:text-base font-bold text-emerald-600 bg-emerald-50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full inline-flex items-center gap-1 reward-text myanmar-friendly">
-                    <i class="fas fa-star text-amber-500 text-[8px] sm:text-xs"></i> 
-                    ⭐ 300 ကျပ်ငွေ ရရှိမည်
-                  </span>
-                </div>
-              </div>
-            </div>
-            <button class="claim-task-btn bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:from-purple-600 hover:to-fuchsia-600 text-white font-medium px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-sm shadow-md transition-all duration-200 flex items-center gap-1 claim-btn-ripple flex-shrink-0 whitespace-nowrap">
-              <i class="fas fa-eye text-[9px] sm:text-xs"></i> 
-              <span>ကြည့်မည်</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Task 3 - Share with 2 friends -->
-        <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-sm border border-purple-50 transition-all task-card-hover">
-          <div class="task-row">
-            <div class="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
-              <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0">
-                <i class="fas fa-user-friends text-xs sm:text-sm"></i>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="reward-only">
-                  <span class="text-[11px] sm:text-sm md:text-base font-bold text-emerald-600 bg-emerald-50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full inline-flex items-center gap-1 reward-text myanmar-friendly">
-                    <i class="fas fa-star text-amber-500 text-[8px] sm:text-xs"></i> 
-                    ⭐ 300 ကျပ်ငွေ ရရှိမည်
-                  </span>
-                </div>
-              </div>
-            </div>
-            <button class="claim-task-btn bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:from-purple-600 hover:to-fuchsia-600 text-white font-medium px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-sm shadow-md transition-all duration-200 flex items-center gap-1 claim-btn-ripple flex-shrink-0 whitespace-nowrap">
-              <i class="fas fa-eye text-[9px] sm:text-xs"></i> 
-              <span>ကြည့်မည်</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Task 4 - Daily login bonus -->
-        <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-sm border border-purple-50 transition-all task-card-hover">
-          <div class="task-row">
-            <div class="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
-              <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0">
-                <i class="fas fa-calendar-check text-xs sm:text-sm"></i>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="reward-only">
-                  <span class="text-[11px] sm:text-sm md:text-base font-bold text-emerald-600 bg-emerald-50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full inline-flex items-center gap-1 reward-text myanmar-friendly">
-                    <i class="fas fa-star text-amber-500 text-[8px] sm:text-xs"></i> 
-                    ⭐ 300 ကျပ်ငွေ ရရှိမည်
-                  </span>
-                </div>
-              </div>
-            </div>
-            <button class="claim-task-btn bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:from-purple-600 hover:to-fuchsia-600 text-white font-medium px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-sm shadow-md transition-all duration-200 flex items-center gap-1 claim-btn-ripple flex-shrink-0 whitespace-nowrap">
-              <i class="fas fa-eye text-[9px] sm:text-xs"></i> 
-              <span>ကြည့်မည်</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Task 5 - Write a product review -->
-        <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-sm border border-purple-50 transition-all task-card-hover">
-          <div class="task-row">
-            <div class="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
-              <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0">
-                <i class="fas fa-pen-fancy text-xs sm:text-sm"></i>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="reward-only">
-                  <span class="text-[11px] sm:text-sm md:text-base font-bold text-emerald-600 bg-emerald-50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full inline-flex items-center gap-1 reward-text myanmar-friendly">
-                    <i class="fas fa-star text-amber-500 text-[8px] sm:text-xs"></i> 
-                    ⭐ 300 ကျပ်ငွေ ရရှိမည်
-                  </span>
-                </div>
-              </div>
-            </div>
-            <button class="claim-task-btn bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:from-purple-600 hover:to-fuchsia-600 text-white font-medium px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-sm shadow-md transition-all duration-200 flex items-center gap-1 claim-btn-ripple flex-shrink-0 whitespace-nowrap">
-              <i class="fas fa-eye text-[9px] sm:text-xs"></i> 
-              <span>ကြည့်မည်</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- subtle referral hint -->
-      <div class="mt-5 text-center">
-        <p class="text-[9px] sm:text-[10px] text-gray-400 flex items-center justify-center gap-1 flex-wrap">
-          <i class="fas fa-gift text-purple-300 text-[8px]"></i> 
-          <span>Complete 5 tasks & unlock bonus 500 MMK</span>
-        </p>
+<div class="app">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-brand">
+      <div class="header-logo">⛏️</div>
+      <div>
+        <div class="header-name">Kyawngar</div>
+        <div class="header-sub" id="headerSub">ပိုက်ဆံရှာမည်</div>
       </div>
     </div>
-
-    <!-- Bottom Navigation Bar - Updated with Burmese text as requested -->
-    <div class="fixed bottom-0 left-0 right-0 w-full max-w-md mx-auto bg-white/95 backdrop-blur-lg border-t border-white/40 shadow-2xl rounded-t-2xl z-50"
-         style="backdrop-filter: blur(20px); background: rgba(255,255,255,0.96);">
-      <div class="flex justify-around items-center py-1.5 sm:py-2 px-2">
-        <!-- Home -->
-        <div class="nav-item flex flex-col items-center justify-center py-1 px-2 sm:px-3 rounded-xl transition-all cursor-pointer group" data-nav="home">
-          <div class="text-purple-600 text-lg sm:text-xl"><i class="fas fa-home"></i></div>
-          <span class="text-[9px] sm:text-[10px] font-medium mt-0.5 text-purple-600">ပင်မ</span>
-        </div>
-        <!-- Stats -> ပိုက်ဆံရှာမည် -->
-        <div class="nav-item flex flex-col items-center justify-center py-1 px-2 sm:px-3 rounded-xl transition-all cursor-pointer group" data-nav="earn">
-          <div class="text-gray-500 group-hover:text-purple-500 text-lg sm:text-xl"><i class="fas fa-chart-line"></i></div>
-          <span class="text-[9px] sm:text-[10px] font-medium text-gray-500 group-hover:text-purple-500">ပိုက်ဆံရှာမည်</span>
-        </div>
-        <!-- Task+ -> ပိုက်ဆံထုတ်မည် (center elevated) -->
-        <div class="relative -top-2 sm:-top-3">
-          <div class="bg-gradient-to-r from-purple-500 to-fuchsia-500 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-xl shadow-purple-300/50 ring-4 ring-white/70 transition-transform active:scale-95 cursor-pointer">
-            <i class="fas fa-money-bill-wave text-white text-xl sm:text-2xl"></i>
-          </div>
-          <span class="text-[8px] sm:text-[9px] font-semibold text-purple-600 absolute -bottom-3 sm:-bottom-4 left-1/2 transform -translate-x-1/2 whitespace-nowrap">ပိုက်ဆံထုတ်မည်</span>
-        </div>
-        <!-- Calendar -> ဖိတ်ထားသူများ -->
-        <div class="nav-item flex flex-col items-center justify-center py-1 px-2 sm:px-3 rounded-xl transition-all cursor-pointer group" data-nav="invites">
-          <div class="text-gray-500 group-hover:text-purple-500 text-lg sm:text-xl"><i class="fas fa-user-friends"></i></div>
-          <span class="text-[9px] sm:text-[10px] font-medium text-gray-500 group-hover:text-purple-500">ဖိတ်ထားသူများ</span>
-        </div>
-        <!-- Settings -> အကောင့် -->
-        <div class="nav-item flex flex-col items-center justify-center py-1 px-2 sm:px-3 rounded-xl transition-all cursor-pointer group" data-nav="account">
-          <div class="text-gray-500 group-hover:text-purple-500 text-lg sm:text-xl"><i class="fas fa-user-circle"></i></div>
-          <span class="text-[9px] sm:text-[10px] font-medium text-gray-500 group-hover:text-purple-500">အကောင့်</span>
-        </div>
-      </div>
+    <div class="header-balance">
+      <span>💰</span>
+      <span class="header-balance-num" id="headerBalance">0</span>
+      <span style="font-size:11px;color:var(--text3)">ကျပ်</span>
     </div>
   </div>
 
-  <!-- Toast notification container -->
-  <div id="toast-notify" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 opacity-0 pointer-events-none">
-    <div class="bg-gray-900/90 backdrop-blur-md text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-xl flex items-center gap-2 text-xs sm:text-sm font-medium border border-white/20 whitespace-nowrap">
-      <i class="fas fa-check-circle text-emerald-400"></i>
-      <span id="toast-message">+300 MMK claimed!</span>
+  <!-- Pages -->
+  <div class="pages">
+
+    <!-- ========== HOME PAGE ========== -->
+    <div class="page active" id="page-home">
+      <!-- Balance Card -->
+      <div class="card balance-card card-gold">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:2px;">လက်ကျန်ငွေ</div>
+        <div class="amount" id="homeBalance">0</div>
+        <div style="font-size:11px;color:var(--text3);">MMK ကျပ်ငွေ</div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:6px;">
+          <span style="font-size:11px;color:var(--green);">⚡ မိုင်နာ ဝင်ငွေ:</span>
+          <span style="font-size:11px;font-weight:700;color:var(--green);" id="homeLiveEarn">0</span>
+          <span style="font-size:10px;color:var(--text3);">ကျပ် (pending)</span>
+        </div>
+        <button class="collect-btn" id="homeCollectBtn" onclick="collectEarnings()">⛏️ ဝင်ငွေ ထည့်သွင်းမည်</button>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon">⛏️</div>
+          <div class="stat-num" id="homeActiveMiners">0</div>
+          <div class="stat-label">Active မိုင်နာ</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-num" id="homeInviteCount">0</div>
+          <div class="stat-label">ဖိတ်ထားသူ</div>
+        </div>
+      </div>
+
+      <!-- Invite Card -->
+      <div class="invite-card">
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">🎁 သူငယ်ချင်းဖိတ်ကြားပါ</div>
+        <p>တစ်ယောက်ဖိတ်ကြားတိုင်း <strong style="color:var(--gold)">2,000 ကျပ်</strong> ရရှိမည်</p>
+        <button class="copy-btn" id="homeInviteBtn" onclick="copyInviteLink()">🔗 ဖိတ်ကြားချိတ်ဆက်ကူး</button>
+      </div>
+
+      <!-- Quick info -->
+      <div class="card" style="background:rgba(245,197,24,.04);">
+        <div style="font-size:12px;color:var(--text2);line-height:1.8;">
+          ⛏️ မိုင်နာတစ်လုံးကို <strong style="color:var(--gold)">10 မိနစ်ကို 100 ကျပ်</strong> ရသည်<br>
+          📺 တာဝန် 1-5 ကြည့်ရှုပြီး <strong style="color:var(--gold)">300 ကျပ်</strong> ရသည်<br>
+          💸 အနည်းဆုံး <strong style="color:var(--gold)">50,000 ကျပ်</strong> ထုတ်နိုင်သည်
+        </div>
+      </div>
     </div>
-  </div>
 
-  <script>
-    (function() {
-      const taskIds = ["task1_video", "task2_survey", "task3_share", "task4_login", "task5_review"];
-      let inviteCount = parseInt(localStorage.getItem('invite_count') || '0');
-      let totalInviteEarnings = parseInt(localStorage.getItem('total_invite_earnings') || '0');
-      let currentEarnings = 250000;
-      const earningsElement = document.querySelector('.text-3xl.sm\\:text-4xl, .text-3xl');
-      const withdrawHint = document.querySelector('.text-purple-100');
+    <!-- ========== EARN PAGE ========== -->
+    <div class="page" id="page-earn">
+      <div class="earn-header">
+        <h2>⛏️ ပိုက်ဆံတူးမည်</h2>
+        <p>မိုင်နာ 3 လုံးကို activate လုပ်ပြီး ပိုက်ဆံတူးပါ</p>
+      </div>
 
-      function updateEarningsDisplay() {
-        const earningsSpan = document.querySelector('.bg-gradient-to-br.from-purple-600 .text-3xl');
-        if (earningsSpan) {
-          earningsSpan.innerHTML = `MMK ${currentEarnings.toLocaleString()} <span class="text-xs sm:text-sm font-normal text-white/70">Kyat</span>`;
+      <!-- Miners Section -->
+      <div class="miners-section">
+        <div class="section-label">🔧 မိုင်နာများ</div>
+        <div id="minersContainer" style="display:flex;flex-direction:column;gap:10px;">
+          <!-- Miner cards injected by JS -->
+        </div>
+      </div>
+
+      <!-- Tasks Section -->
+      <div class="tasks-section">
+        <div class="section-label">📺 ကြော်ငြာကြည့်မည် (တာဝန်)</div>
+        <div class="tasks-grid" id="tasksGrid">
+          <!-- Task cards injected by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== WITHDRAW PAGE ========== -->
+    <div class="page" id="page-withdraw">
+      <div class="notice-box">
+        <div class="notice-icon">ℹ️</div>
+        <div class="notice-text">
+          <strong>အနည်းဆုံး 50,000 MMK</strong> ရှိမှ ထုတ်နိုင်သည်။<br>
+          ထုတ်တောင်းဆိုပြီး admin စစ်ဆေးပြီးနောက် ငွေလွှဲပေးမည်။
+        </div>
+      </div>
+
+      <div class="wd-balance-row">
+        <span class="label">လက်ကျန်ငွေ</span>
+        <span class="value" id="wdBalance">0 ကျပ်</span>
+      </div>
+
+      <div class="wd-form">
+        <div>
+          <span class="form-label">ငွေပေးချေမှုနည်းလမ်း</span>
+          <div class="method-tabs">
+            <div class="method-tab selected" id="tabKpay" onclick="selectMethod('kpay')">
+              <span class="method-tab-icon">💙</span>KBZ Pay
+            </div>
+            <div class="method-tab" id="tabWave" onclick="selectMethod('wavepay')">
+              <span class="method-tab-icon">🌊</span>Wave Pay
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <span class="form-label" id="wdAccountLabel">KPay အကောင့်နံပါတ်</span>
+          <input class="form-input" type="tel" id="wdAccountNumber" placeholder="09xxxxxxxxx">
+        </div>
+
+        <div>
+          <span class="form-label">အကောင့်ပိုင်ရှင်အမည်</span>
+          <input class="form-input" type="text" id="wdAccountName" placeholder="ဦး/ဒေါ် ...">
+        </div>
+
+        <div>
+          <span class="form-label">ထုတ်ယူမည့်ပမာဏ (MMK)</span>
+          <input class="form-input" type="number" id="wdAmount" placeholder="50000 အနည်းဆုံး">
+        </div>
+
+        <button class="wd-submit" id="wdSubmitBtn" onclick="submitWithdraw()">💸 ထုတ်ယူမည်</button>
+      </div>
+    </div>
+
+    <!-- ========== INVITES PAGE ========== -->
+    <div class="page" id="page-invites">
+      <div class="invite-hero">
+        <div class="big-num" id="inviteHeroCount">0</div>
+        <div class="big-label">ဖိတ်ကြားထားသူ</div>
+        <div class="reward-info" style="color:var(--text2);">
+          တစ်ယောက်ဖိတ်ကြားတိုင်း <span style="color:var(--gold);font-weight:700;">2,000 ကျပ်</span> ရသည်
+        </div>
+        <button class="copy-btn" style="margin-top:10px;" onclick="copyInviteLink()">🔗 ဖိတ်ကြားချိတ်ဆက်ကူး</button>
+      </div>
+
+      <div class="section-label">ဖိတ်ကြားထားသူများ စာရင်း</div>
+      <div class="invite-list" id="inviteList">
+        <div class="empty-state">
+          <div class="empty-icon">👥</div>
+          <p>မည်သူမျှ မဖိတ်ကြားရသေးပါ<br>သူငယ်ချင်းများကို ဖိတ်ကြားပြီး ပိုက်ဆံရှာပါ!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ACCOUNT PAGE ========== -->
+    <div class="page" id="page-account">
+      <div class="profile-card">
+        <div class="profile-avatar" id="profileAvatar">?</div>
+        <div>
+          <div class="profile-name" id="profileName">Loading...</div>
+          <div class="profile-id" id="profileId">ID: —</div>
+        </div>
+      </div>
+
+      <div class="account-stats">
+        <div class="acstat">
+          <div class="ac-icon">💰</div>
+          <div class="ac-val" id="acBalance">0</div>
+          <div class="ac-label">ကျပ်ငွေ (လက်ကျန်)</div>
+        </div>
+        <div class="acstat">
+          <div class="ac-icon">👥</div>
+          <div class="ac-val" id="acInvites">0</div>
+          <div class="ac-label">ဖိတ်ကြားထားသူ</div>
+        </div>
+        <div class="acstat">
+          <div class="ac-icon">⛏️</div>
+          <div class="ac-val" id="acMiners">0</div>
+          <div class="ac-label">Active မိုင်နာ</div>
+        </div>
+        <div class="acstat">
+          <div class="ac-icon">📺</div>
+          <div class="ac-val" id="acTasks">5</div>
+          <div class="ac-label">တာဝန်အရေအတွက်</div>
+        </div>
+      </div>
+
+      <div class="referral-card">
+        <h3>🔗 ကျွန်ုပ်၏ ဖိတ်ကြားကုဒ်</h3>
+        <div class="ref-code-box">
+          <div class="ref-code" id="acRefCode">—</div>
+          <button class="ref-copy" onclick="copyInviteLink()">ကူး</button>
+        </div>
+        <button class="copy-btn" onclick="copyInviteLink()">🔗 ဖိတ်ကြားချိတ်ဆက်ကူး</button>
+      </div>
+    </div>
+
+  </div><!-- end .pages -->
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-page="home" onclick="goPage('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>ပင်မ</span>
+    </button>
+    <button class="nav-btn" data-page="earn" onclick="goPage('earn')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>ပိုက်ဆံရှာ</span>
+    </button>
+    <button class="nav-btn" data-page="withdraw" onclick="goPage('withdraw')">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      <span>ထုတ်မည်</span>
+    </button>
+    <button class="nav-btn" data-page="invites" onclick="goPage('invites')">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      <span>ဖိတ်ထားသူ</span>
+    </button>
+    <button class="nav-btn" data-page="account" onclick="goPage('account')">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>အကောင့်</span>
+    </button>
+  </nav>
+</div>
+
+<script>
+// =====================================================================
+// CONFIG
+// =====================================================================
+const API_BASE      = 'https://kyawngar-backend.onrender.com/api'; // Update with your backend URL
+const ADSGRAM_BLOCK = '111111';
+const TASK_REWARDS  = { task1: 300, task2: 300, task3: 300, task4: 300, task5: 300 };
+const TASK_NAMES    = { task1: 'တာဝန် ၁', task2: 'တာဝန် ၂', task3: 'တာဝန် ၃', task4: 'တာဝန် ၄', task5: 'တာဝန် ၅' };
+const TASK_ICONS    = { task1: '📺', task2: '🎬', task3: '📡', task4: '🎥', task5: '📹' };
+const MINER_NAMES   = { 1: 'မိုင်နာ Alpha', 2: 'မိုင်နာ Beta', 3: 'မိုင်နာ Gamma' };
+const MINER_ICONS   = { 1: '⛏️', 2: '🔨', 3: '🪚' };
+const MINE_INTERVAL = 10 * 60 * 1000;
+const MINE_RATE     = 100;
+
+// =====================================================================
+// Telegram Setup
+// =====================================================================
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.expand(); tg.ready(); tg.enableClosingConfirmation(); }
+const initData    = tg?.initData || '';
+const tgUser      = tg?.initDataUnsafe?.user || null;
+const botUsername = 'kyawngar_bot'; // Update with your bot username
+
+// Referral code from start param
+const startParam  = tg?.initDataUnsafe?.start_param || '';
+
+// =====================================================================
+// State
+// =====================================================================
+let userData = null;
+let adControllers = {};
+let activeMinerIntervals = {};
+let toastTimer = null;
+let pendingPurchaseSlot = null;
+
+// =====================================================================
+// API Helper
+// =====================================================================
+async function api(method, path, body) {
+    const opts = {
+        method,
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Telegram-Init-Data': initData,
+            ...(startParam && !userData ? { 'X-Referral': startParam } : {})
         }
-        if (withdrawHint) {
-          withdrawHint.innerHTML = `<i class="fas fa-arrow-down text-[8px]"></i> Available for withdrawal · ${currentEarnings.toLocaleString()} MMK`;
-        }
-      }
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const res  = await fetch(API_BASE + path, opts);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error');
+    return data;
+}
 
-      function restoreAllEarnings() {
-        let claimedDailyCount = 0;
-        taskIds.forEach(id => {
-          if (localStorage.getItem(`task_claimed_${id}`) === 'true') claimedDailyCount++;
+// =====================================================================
+// Toast
+// =====================================================================
+function toast(msg, type = '') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className   = 'toast show ' + type;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.className = 'toast'; }, 2800);
+}
+
+// =====================================================================
+// Navigation
+// =====================================================================
+function goPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+    document.getElementById('page-' + page).classList.add('active');
+
+    if (page === 'withdraw') updateWithdrawPage();
+    if (page === 'invites')  loadInvites();
+    if (page === 'account')  updateAccountPage();
+}
+
+// =====================================================================
+// Load User Data
+// =====================================================================
+async function loadUser() {
+    try {
+        userData = await api('GET', '/user');
+        updateAllUI();
+        startLiveCounters();
+    } catch (e) {
+        console.error('loadUser:', e.message);
+        toast('ဆက်သွယ်မှု မအောင်မြင်ပါ', 'error');
+    }
+}
+
+function updateAllUI() {
+    if (!userData) return;
+    const bal = userData.balance;
+    const fmt = (n) => Math.floor(n).toLocaleString();
+
+    // Header
+    document.getElementById('headerBalance').textContent = fmt(bal);
+
+    // Home
+    document.getElementById('homeBalance').textContent = fmt(bal);
+    document.getElementById('homeLiveEarn').textContent = fmt(userData.liveEarnings || 0);
+    const activeM = (userData.miners || []).filter(m => m.status === 'active').length;
+    document.getElementById('homeActiveMiners').textContent = activeM;
+    document.getElementById('homeInviteCount').textContent  = userData.inviteCount || 0;
+
+    // Account
+    document.getElementById('acBalance').textContent = fmt(bal);
+    document.getElementById('acInvites').textContent = userData.inviteCount || 0;
+    document.getElementById('acMiners').textContent  = activeM;
+    document.getElementById('acRefCode').textContent = userData.referralCode || '—';
+    const pName = tgUser?.first_name || userData.firstName || 'User';
+    const pInitial = (pName[0] || 'U').toUpperCase();
+    document.getElementById('profileAvatar').textContent = pInitial;
+    document.getElementById('profileName').textContent   = pName;
+    document.getElementById('profileId').textContent     = 'ID: ' + userData.userId;
+
+    // Miners render
+    renderMiners();
+    renderTasks();
+}
+
+// =====================================================================
+// Miners UI
+// =====================================================================
+function renderMiners() {
+    const container = document.getElementById('minersContainer');
+    const slots     = [1, 2, 3];
+    const minerMap  = {};
+    (userData.miners || []).forEach(m => { minerMap[m.slotIndex] = m; });
+
+    container.innerHTML = slots.map(slot => {
+        const m    = minerMap[slot];
+        const name = MINER_NAMES[slot];
+        const icon = MINER_ICONS[slot];
+
+        if (!m) {
+            // Not purchased
+            return `<div class="miner-card" id="miner-card-${slot}">
+              <div class="miner-card-header">
+                <div class="miner-icon idle">${icon}</div>
+                <div class="miner-info">
+                  <div class="miner-name">${name}</div>
+                  <div class="miner-status-badge badge-idle"><div class="badge-dot"></div>မဝယ်ရသေးပါ</div>
+                </div>
+              </div>
+              <button class="miner-btn miner-btn-buy" onclick="openPurchaseModal(${slot})">⛏️ တူးမည် (ဝယ်ယူပါ)</button>
+            </div>`;
+        }
+
+        if (m.status === 'pending') {
+            return `<div class="miner-card pending" id="miner-card-${slot}">
+              <div class="miner-card-header">
+                <div class="miner-icon pending-bg">${icon}</div>
+                <div class="miner-info">
+                  <div class="miner-name">${name}</div>
+                  <div class="miner-status-badge badge-pending"><div class="badge-dot pulse"></div>Admin စစ်ဆေးနေသည်</div>
+                </div>
+              </div>
+              <button class="miner-btn miner-btn-pending" disabled>⏳ ခွင့်ပြုချက် စောင့်ဆိုင်းနေသည်...</button>
+            </div>`;
+        }
+
+        if (m.status === 'rejected') {
+            return `<div class="miner-card" id="miner-card-${slot}">
+              <div class="miner-card-header">
+                <div class="miner-icon idle">${icon}</div>
+                <div class="miner-info">
+                  <div class="miner-name">${name}</div>
+                  <div class="miner-status-badge badge-rejected">❌ ငြင်းဆန်ခံရသည်</div>
+                </div>
+              </div>
+              <button class="miner-btn miner-btn-buy" onclick="openPurchaseModal(${slot})">🔄 ထပ်မံ တောင်းဆိုမည်</button>
+            </div>`;
+        }
+
+        if (m.status === 'active') {
+            const pendEarn = m.pendingEarn || 0;
+            const elapsed  = m.lastCollect ? Date.now() - m.lastCollect : 0;
+            const progress = Math.min((elapsed % MINE_INTERVAL) / MINE_INTERVAL * 100, 100);
+            return `<div class="miner-card active" id="miner-card-${slot}">
+              <div class="miner-card-header">
+                <div class="miner-icon active-bg">${icon}</div>
+                <div class="miner-info">
+                  <div class="miner-name">${name}</div>
+                  <div class="miner-status-badge badge-active"><div class="badge-dot pulse"></div>တူးနေသည် ✓</div>
+                </div>
+              </div>
+              <div class="mining-live">
+                <div class="pickaxe-row">
+                  <span class="pickaxe">⛏️</span>
+                  <span class="rock">🪨</span>
+                  <span style="font-size:12px;color:var(--gold)">→</span>
+                  <span style="font-size:16px;">💰</span>
+                </div>
+                <div class="mining-earn" id="miner-earn-${slot}">${Math.floor(pendEarn).toLocaleString()} ကျပ်</div>
+                <div class="mining-rate">10 မိနစ်ကို 100 ကျပ် • ပိုက်ဆံတူးနေသည်...</div>
+              </div>
+              <div class="earn-bar-wrap">
+                <div class="earn-bar-label">
+                  <span>နောက် collect</span>
+                  <span id="miner-timer-${slot}">—</span>
+                </div>
+                <div class="earn-bar"><div class="earn-bar-fill" id="miner-bar-${slot}" style="width:${progress}%"></div></div>
+              </div>
+              <button class="miner-btn miner-btn-collect" id="miner-collect-btn-${slot}" onclick="collectEarnings()" ${pendEarn < 100 ? 'disabled' : ''}>
+                💰 ထည့်သွင်းမည် (+${Math.floor(pendEarn).toLocaleString()} ကျပ်)
+              </button>
+            </div>`;
+        }
+
+        return '';
+    }).join('');
+
+    // Start live update timers for active miners
+    clearMinerTimers();
+    (userData.miners || []).filter(m => m.status === 'active').forEach(m => startMinerTimer(m));
+}
+
+function clearMinerTimers() {
+    Object.values(activeMinerIntervals).forEach(clearInterval);
+    activeMinerIntervals = {};
+}
+
+function startMinerTimer(miner) {
+    const slot = miner.slotIndex;
+    let lastCollect = miner.lastCollect || Date.now();
+
+    activeMinerIntervals[slot] = setInterval(() => {
+        const elapsed   = Date.now() - lastCollect;
+        const progress  = Math.min((elapsed % MINE_INTERVAL) / MINE_INTERVAL * 100, 100);
+        const intervals = Math.floor(elapsed / MINE_INTERVAL);
+        const earned    = intervals * MINE_RATE + (miner.pendingEarn || 0);
+        const timeToNext = MINE_INTERVAL - (elapsed % MINE_INTERVAL);
+        const mins = Math.floor(timeToNext / 60000);
+        const secs = Math.floor((timeToNext % 60000) / 1000);
+
+        const barEl   = document.getElementById(`miner-bar-${slot}`);
+        const earnEl  = document.getElementById(`miner-earn-${slot}`);
+        const timerEl = document.getElementById(`miner-timer-${slot}`);
+        const btnEl   = document.getElementById(`miner-collect-btn-${slot}`);
+
+        if (barEl)  barEl.style.width = progress + '%';
+        if (earnEl) earnEl.textContent = Math.floor(earned).toLocaleString() + ' ကျပ်';
+        if (timerEl) timerEl.textContent = `${mins}:${String(secs).padStart(2,'0')}`;
+        if (btnEl) {
+            btnEl.disabled   = earned < 100;
+            btnEl.textContent = earned >= 100
+                ? `💰 ထည့်သွင်းမည် (+${Math.floor(earned).toLocaleString()} ကျပ်)`
+                : '⏳ မိနစ် ' + mins + ':' + String(secs).padStart(2,'0') + ' ကြာ...';
+        }
+
+        // Also update live earn display on home
+        const liveEl = document.getElementById('homeLiveEarn');
+        if (liveEl && userData) liveEl.textContent = Math.floor(earned).toLocaleString();
+    }, 1000);
+}
+
+function startLiveCounters() {
+    // Additional global live update
+    setInterval(() => {
+        if (!userData) return;
+        // Recalculate all active miners pending earnings live
+        let total = 0;
+        (userData.miners || []).filter(m => m.status === 'active').forEach(m => {
+            const elapsed = Date.now() - m.lastCollect;
+            total += Math.floor(elapsed / MINE_INTERVAL) * MINE_RATE;
         });
-        const dailyEarnings = claimedDailyCount * 300;
-        totalInviteEarnings = parseInt(localStorage.getItem('total_invite_earnings') || '0');
-        inviteCount = parseInt(localStorage.getItem('invite_count') || '0');
-        currentEarnings = 250000 + dailyEarnings + totalInviteEarnings;
-        updateEarningsDisplay();
-      }
+        const liveEl = document.getElementById('homeLiveEarn');
+        if (liveEl) liveEl.textContent = total.toLocaleString();
+    }, 5000);
+}
 
-      function getClaimedStatus(taskId) {
-        return localStorage.getItem(`task_claimed_${taskId}`) === 'true';
-      }
+// =====================================================================
+// Purchase Miner Modal
+// =====================================================================
+function openPurchaseModal(slot) {
+    pendingPurchaseSlot = slot;
+    document.getElementById('purchaseModalSub').textContent = `Slot #${slot} — ${MINER_NAMES[slot]}`;
+    document.getElementById('purchaseModal').classList.add('show');
+}
+function closePurchaseModal() {
+    document.getElementById('purchaseModal').classList.remove('show');
+    pendingPurchaseSlot = null;
+}
 
-      function setClaimed(taskId) {
-        localStorage.setItem(`task_claimed_${taskId}`, 'true');
-      }
+async function confirmPurchase() {
+    if (!pendingPurchaseSlot) return;
+    const btn = document.getElementById('confirmPurchaseBtn');
+    btn.disabled    = true;
+    btn.textContent = '⏳ တောင်းဆိုနေသည်...';
+    try {
+        await api('POST', '/miners/purchase', { slotIndex: pendingPurchaseSlot });
+        closePurchaseModal();
+        toast('✅ တောင်းဆိုမှု ပြည့်ပြီ! Admin စစ်ဆေးမည်', 'success');
+        await loadUser();
+    } catch (e) {
+        toast('❌ ' + e.message, 'error');
+    } finally {
+        btn.disabled    = false;
+        btn.textContent = '✓ တောင်းဆိုမည်';
+    }
+}
 
-      function addDailyReward(taskId, buttonElement) {
-        if (getClaimedStatus(taskId)) {
-          showToast("✨ ဒီတာဝန်ကို ရယူပြီးပါပြီ။", false);
-          return false;
+// =====================================================================
+// Collect Earnings
+// =====================================================================
+async function collectEarnings() {
+    const btn = document.getElementById('homeCollectBtn');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ ...'; }
+    try {
+        const res = await api('POST', '/miners/collect');
+        if (res.earned > 0) {
+            userData.balance = res.newBalance;
+            toast(`✅ +${res.earned.toLocaleString()} ကျပ် ထည့်သွင်းပြီး!`, 'success');
+            updateAllUI();
+        } else {
+            toast('⏳ ထုတ်ယူစရာ ငွေ မရှိသေးပါ', '');
         }
-        setClaimed(taskId);
-        currentEarnings += 300;
-        updateEarningsDisplay();
-        if (buttonElement) {
-          buttonElement.innerHTML = `<i class="fas fa-check-circle text-[9px] sm:text-xs"></i> <span>ရယူပြီး</span>`;
-          buttonElement.disabled = true;
-          buttonElement.classList.remove('bg-gradient-to-r', 'from-purple-500', 'to-fuchsia-500');
-          buttonElement.classList.add('bg-gray-300', 'text-gray-600', 'cursor-not-allowed');
-          buttonElement.style.opacity = '0.6';
+    } catch (e) {
+        toast('❌ ' + e.message, 'error');
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '⛏️ ဝင်ငွေ ထည့်သွင်းမည်'; }
+    }
+}
+
+// =====================================================================
+// Tasks UI
+// =====================================================================
+function renderTasks() {
+    const grid   = document.getElementById('tasksGrid');
+    const status = userData?.taskStatus || {};
+    const tasks  = ['task1', 'task2', 'task3', 'task4', 'task5'];
+
+    grid.innerHTML = tasks.map(tid => {
+        const ts    = status[tid] || { canClaim: true, remaining: 0 };
+        const icon  = TASK_ICONS[tid];
+        const name  = TASK_NAMES[tid];
+        const rew   = TASK_REWARDS[tid];
+
+        let btnClass = 'task-btn-watch';
+        let btnText  = '📺 ကြည့်မည်';
+        let cdText   = '';
+        let cardCls  = 'task-card available';
+
+        if (!ts.canClaim) {
+            const rem  = ts.remaining;
+            const mins = Math.floor(rem / 60000);
+            const secs = Math.floor((rem % 60000) / 1000);
+            cdText   = `⏳ ${mins}:${String(secs).padStart(2,'0')}`;
+            btnClass = 'task-btn-cooldown';
+            btnText  = `${mins}:${String(secs).padStart(2,'0')} စောင့်ပါ`;
+            cardCls  = 'task-card';
         }
-        showToast(`🎉 +300 ကျပ်ငွေ ရရှိခဲ့သည်! စုစုပေါင်း ${currentEarnings.toLocaleString()} MMK`, true);
-        createMicroConfetti(buttonElement);
-        return true;
-      }
 
-      function addInviteReward() {
-        inviteCount++;
-        localStorage.setItem('invite_count', inviteCount);
-        const inviteRewardAmount = 3000;
-        totalInviteEarnings += inviteRewardAmount;
-        localStorage.setItem('total_invite_earnings', totalInviteEarnings);
-        currentEarnings += inviteRewardAmount;
-        updateEarningsDisplay();
-        showToast(`🎉 သူငယ်ချင်းဖိတ်ကြားခြင်း အောင်မြင်ပါသည်! +${inviteRewardAmount.toLocaleString()} ကျပ် (စုစုပေါင်း ဖိတ်ကြားမှု: ${inviteCount})`, true);
-        const inviteBtn = document.getElementById('inviteFriendBtn');
-        if (inviteBtn) createMicroConfetti(inviteBtn);
-        return true;
-      }
+        return `<div class="${cardCls}" id="task-card-${tid}">
+          <div class="task-icon">${icon}</div>
+          <div class="task-name">${name}</div>
+          <div class="task-reward-text">+${rew} ကျပ်</div>
+          <div class="task-cooldown" id="task-cd-${tid}">${cdText}</div>
+          <button class="task-btn ${btnClass}" id="task-btn-${tid}"
+            onclick="watchAd('${tid}')"
+            ${!ts.canClaim ? 'disabled' : ''}>
+            ${btnText}
+          </button>
+        </div>`;
+    }).join('');
 
-      let toastTimeout;
-      function showToast(message, isSuccess = true) {
-        const toastDiv = document.getElementById('toast-notify');
-        const toastMsgSpan = document.getElementById('toast-message');
-        if (!toastDiv || !toastMsgSpan) return;
-        clearTimeout(toastTimeout);
-        toastMsgSpan.innerText = message;
-        toastDiv.classList.remove('opacity-0');
-        toastDiv.classList.add('opacity-100');
-        toastTimeout = setTimeout(() => {
-          toastDiv.classList.remove('opacity-100');
-          toastDiv.classList.add('opacity-0');
-        }, 2500);
-      }
+    // Start countdown timers
+    startTaskTimers();
+}
 
-      function createMicroConfetti(originBtn) {
-        if (!originBtn) return;
-        const rect = originBtn.getBoundingClientRect();
-        const colors = ['#c084fc', '#f0abfc', '#a855f7', '#ec489a', '#f59e0b'];
-        for (let i = 0; i < 12; i++) {
-          const conf = document.createElement('div');
-          conf.innerHTML = '✦';
-          conf.style.position = 'fixed';
-          conf.style.left = rect.left + rect.width / 2 + 'px';
-          conf.style.top = rect.top + rect.height / 2 + 'px';
-          conf.style.fontSize = '12px';
-          conf.style.color = colors[Math.floor(Math.random() * colors.length)];
-          conf.style.pointerEvents = 'none';
-          conf.style.zIndex = '9999';
-          conf.style.fontWeight = 'bold';
-          document.body.appendChild(conf);
-          let angle = Math.random() * Math.PI * 2;
-          let velocity = 2 + Math.random() * 5;
-          let vx = Math.cos(angle) * velocity;
-          let vy = Math.sin(angle) * velocity - 2;
-          let posX = rect.left + rect.width / 2;
-          let posY = rect.top + rect.height / 2;
-          let opacity = 1;
-          function animate() {
-            posX += vx;
-            posY += vy;
-            vy += 0.2;
-            opacity -= 0.02;
-            conf.style.left = posX + 'px';
-            conf.style.top = posY + 'px';
-            conf.style.opacity = opacity;
-            if (opacity <= 0) { conf.remove(); return; }
-            requestAnimationFrame(animate);
-          }
-          requestAnimationFrame(animate);
-          setTimeout(() => conf.remove(), 700);
-        }
-      }
-
-      function bindDailyTaskButtons() {
-        const allClaimBtns = document.querySelectorAll('.claim-task-btn');
-        allClaimBtns.forEach((btn, idx) => {
-          const taskId = taskIds[idx];
-          if (!taskId) return;
-          if (getClaimedStatus(taskId)) {
-            btn.innerHTML = `<i class="fas fa-check-circle text-[9px] sm:text-xs"></i> <span>ရယူပြီး</span>`;
-            btn.disabled = true;
-            btn.classList.remove('bg-gradient-to-r', 'from-purple-500', 'to-fuchsia-500');
-            btn.classList.add('bg-gray-300', 'text-gray-600', 'cursor-not-allowed');
-          } else {
-            btn.disabled = false;
-            btn.innerHTML = `<i class="fas fa-eye text-[9px] sm:text-xs"></i> <span>ကြည့်မည်</span>`;
-            btn.classList.add('bg-gradient-to-r', 'from-purple-500', 'to-fuchsia-500');
-            btn.classList.remove('bg-gray-300', 'text-gray-600');
-          }
-          const newBtn = btn.cloneNode(true);
-          btn.parentNode.replaceChild(newBtn, btn);
-          newBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const tid = taskIds[idx];
-            if (getClaimedStatus(tid)) {
-              showToast("ဒီတာဝန်ကိုရယူပြီးပါပြီ။", false);
-              return;
+let taskTimerInterval = null;
+function startTaskTimers() {
+    if (taskTimerInterval) clearInterval(taskTimerInterval);
+    taskTimerInterval = setInterval(() => {
+        if (!userData?.taskStatus) return;
+        const now = Date.now();
+        for (const tid of ['task1','task2','task3','task4','task5']) {
+            const ts  = userData.taskStatus[tid];
+            if (!ts || ts.canClaim) continue;
+            const rem = Math.max(0, ts.remaining - (now - (userData._loadedAt || now)));
+            if (rem <= 0) {
+                ts.canClaim  = true;
+                ts.remaining = 0;
+                const btn = document.getElementById('task-btn-' + tid);
+                const cd  = document.getElementById('task-cd-' + tid);
+                const card= document.getElementById('task-card-' + tid);
+                if (btn)  { btn.disabled = false; btn.textContent = '📺 ကြည့်မည်'; btn.className = 'task-btn task-btn-watch'; }
+                if (cd)   cd.textContent = '';
+                if (card) card.className = 'task-card available';
+            } else {
+                const mins = Math.floor(rem / 60000);
+                const secs = Math.floor((rem % 60000) / 1000);
+                const txt  = `${mins}:${String(secs).padStart(2,'0')}`;
+                const cd   = document.getElementById('task-cd-' + tid);
+                const btn  = document.getElementById('task-btn-' + tid);
+                if (cd)  cd.textContent = '⏳ ' + txt;
+                if (btn) btn.textContent = txt + ' စောင့်ပါ';
             }
-            addDailyReward(tid, newBtn);
-          });
-        });
-      }
-
-      function bindInviteButton() {
-        const inviteBtn = document.getElementById('inviteFriendBtn');
-        if (inviteBtn) {
-          const newInviteBtn = inviteBtn.cloneNode(true);
-          inviteBtn.parentNode.replaceChild(newInviteBtn, inviteBtn);
-          newInviteBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            addInviteReward();
-            const originalText = newInviteBtn.innerHTML;
-            newInviteBtn.innerHTML = '<i class="fas fa-check"></i> <span>ဖိတ်ပြီး!</span>';
-            setTimeout(() => {
-              if (!newInviteBtn.disabled) newInviteBtn.innerHTML = originalText;
-            }, 1200);
-          });
         }
-      }
+    }, 1000);
+}
 
-      function initBottomNav() {
-        const navItems = document.querySelectorAll('.nav-item');
-        const centerBtn = document.querySelector('.relative.-top-2 .bg-gradient-to-r, .relative.-top-3 .bg-gradient-to-r');
-        if (centerBtn) {
-          centerBtn.addEventListener('click', () => showToast("💰 ငွေထုတ်ယူရန် စနစ်တကျ ပြင်ဆင်နေပါသည်။", true));
+// =====================================================================
+// AdSgram — Watch Ad
+// =====================================================================
+function getAdController(blockId) {
+    if (!adControllers[blockId]) {
+        adControllers[blockId] = window.Adsgram?.init({ blockId });
+    }
+    return adControllers[blockId];
+}
+
+async function watchAd(taskId) {
+    const btn = document.getElementById('task-btn-' + taskId);
+    if (btn) { btn.disabled = true; btn.textContent = '⌛ loading...'; btn.className = 'task-btn task-btn-loading'; }
+
+    try {
+        const adController = getAdController(ADSGRAM_BLOCK);
+        if (!adController) {
+            // Fallback if Adsgram not loaded
+            await claimTask(taskId);
+            return;
         }
-        navItems.forEach(item => {
-          item.addEventListener('click', () => {
-            const navType = item.getAttribute('data-nav');
-            if (navType === 'home') {
-              showToast("🏠 ပင်မစာမျက်နှာ", true);
-            } else if (navType === 'earn') {
-              showToast("💰 ပိုက်ဆံရှာရန် တာဝန်များ ပြီးမြောက်အောင်လုပ်ပါ။", true);
-            } else if (navType === 'invites') {
-              showToast(`👥 သင်ဖိတ်ကြားထားသူ ${inviteCount} ယောက် (စုစုပေါင်း ${totalInviteEarnings.toLocaleString()} MMK ရရှိ)`, true);
-            } else if (navType === 'account') {
-              showToast("👤 အကောင့်အချက်အလက်များ", true);
-            }
-          });
-        });
-      }
 
-      restoreAllEarnings();
-      bindDailyTaskButtons();
-      bindInviteButton();
-      initBottomNav();
-    })();
-  </script>
+        await adController.show();
+        // Ad watched successfully → claim reward
+        await claimTask(taskId);
+    } catch (err) {
+        console.warn('Ad dismissed or error:', err);
+        toast('ကြော်ငြာ မကြည့်ရသေးပါ', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '📺 ကြည့်မည်'; btn.className = 'task-btn task-btn-watch'; }
+    }
+}
+
+async function claimTask(taskId) {
+    try {
+        const res = await api('POST', '/tasks/claim', { taskId });
+        userData.balance    = res.newBalance;
+        userData._loadedAt  = Date.now();
+        // Update task status
+        if (userData.taskStatus) {
+            userData.taskStatus[taskId] = { canClaim: false, remaining: 3 * 60 * 1000 };
+        }
+        toast(`✅ +${res.earned.toLocaleString()} ကျပ် ရရှိပြီ!`, 'success');
+        updateAllUI();
+    } catch (e) {
+        toast('❌ ' + e.message, 'error');
+        const btn = document.getElementById('task-btn-' + taskId);
+        if (btn) { btn.disabled = false; btn.textContent = '📺 ကြည့်မည်'; btn.className = 'task-btn task-btn-watch'; }
+    }
+}
+
+// =====================================================================
+// Withdraw Page
+// =====================================================================
+let selectedMethod = 'kpay';
+
+function selectMethod(method) {
+    selectedMethod = method;
+    document.getElementById('tabKpay').classList.toggle('selected', method === 'kpay');
+    document.getElementById('tabWave').classList.toggle('selected', method === 'wavepay');
+    document.getElementById('wdAccountLabel').textContent = method === 'kpay' ? 'KPay အကောင့်နံပါတ်' : 'Wave Pay နံပါတ်';
+    document.getElementById('wdAccountNumber').placeholder = '09xxxxxxxxx';
+}
+
+function updateWithdrawPage() {
+    if (!userData) return;
+    document.getElementById('wdBalance').textContent = Math.floor(userData.balance).toLocaleString() + ' ကျပ်';
+}
+
+async function submitWithdraw() {
+    const amount   = document.getElementById('wdAmount').value;
+    const acNum    = document.getElementById('wdAccountNumber').value.trim();
+    const acName   = document.getElementById('wdAccountName').value.trim();
+    const btn      = document.getElementById('wdSubmitBtn');
+
+    if (!amount || Number(amount) < 50000) {
+        toast('❌ အနည်းဆုံး 50,000 ကျပ် ထုတ်ရပါမည်', 'error'); return;
+    }
+    if (!acNum) {
+        toast('❌ အကောင့်နံပါတ် ထည့်ပါ', 'error'); return;
+    }
+    if (userData && Number(amount) > userData.balance) {
+        toast('❌ လက်ကျန်ငွေ မလောက်ပါ', 'error'); return;
+    }
+
+    btn.disabled    = true;
+    btn.textContent = '⏳ တောင်းဆိုနေသည်...';
+
+    try {
+        const res = await api('POST', '/withdraw', {
+            amount: Number(amount), method: selectedMethod,
+            accountNumber: acNum, accountName: acName
+        });
+        userData.balance = res.newBalance;
+        toast('✅ ငွေထုတ်တောင်းဆိုမှု ပြည့်ပြီ! Admin စစ်ဆေးမည်', 'success');
+        document.getElementById('wdAmount').value        = '';
+        document.getElementById('wdAccountNumber').value = '';
+        document.getElementById('wdAccountName').value   = '';
+        updateWithdrawPage();
+        updateAllUI();
+    } catch (e) {
+        toast('❌ ' + e.message, 'error');
+    } finally {
+        btn.disabled    = false;
+        btn.textContent = '💸 ထုတ်ယူမည်';
+    }
+}
+
+// =====================================================================
+// Invites Page
+// =====================================================================
+async function loadInvites() {
+    try {
+        const res  = document.getElementById('inviteList');
+        const data = await api('GET', '/invites');
+
+        document.getElementById('inviteHeroCount').textContent = data.count || 0;
+
+        if (!data.invites || data.invites.length === 0) {
+            res.innerHTML = `<div class="empty-state">
+              <div class="empty-icon">👥</div>
+              <p>မည်သူမျှ မဖိတ်ကြားရသေးပါ<br>သူငယ်ချင်းများကို ဖိတ်ကြားပြီး ပိုက်ဆံရှာပါ!</p>
+            </div>`;
+            return;
+        }
+
+        res.innerHTML = data.invites.map(inv => {
+            const initial = (inv.name || 'U')[0].toUpperCase();
+            const date    = new Date(inv.date).toLocaleDateString('my-MM');
+            return `<div class="invite-item">
+              <div class="invite-avatar">${initial}</div>
+              <div>
+                <div class="invite-name">${inv.name || 'User'}</div>
+                <div class="invite-date">${date}</div>
+              </div>
+              <div class="invite-reward-badge">+${(inv.reward || 2000).toLocaleString()} ကျပ်</div>
+            </div>`;
+        }).join('');
+    } catch (e) {
+        console.warn('loadInvites:', e.message);
+    }
+}
+
+// =====================================================================
+// Account Page
+// =====================================================================
+function updateAccountPage() {
+    if (!userData) return;
+    document.getElementById('acBalance').textContent = Math.floor(userData.balance).toLocaleString();
+    document.getElementById('acInvites').textContent = userData.inviteCount || 0;
+    const activeM = (userData.miners || []).filter(m => m.status === 'active').length;
+    document.getElementById('acMiners').textContent  = activeM;
+    document.getElementById('acRefCode').textContent = userData.referralCode || '—';
+}
+
+// =====================================================================
+// Invite Link
+// =====================================================================
+function copyInviteLink() {
+    if (!userData?.referralCode) { toast('ပထမဆုံး login ဝင်ပါ', 'error'); return; }
+    const link = `https://t.me/${botUsername}?start=${userData.referralCode}`;
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(link).then(() => toast('✅ ချိတ်ဆက် ကူးပြီးပါပြီ!', 'success'));
+    } else {
+        // Telegram share fallback
+        tg?.openTelegramLink?.(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('Kyawngar နဲ့ပိုက်ဆံရှာပါ! 🪙')}`);
+        toast('✅ share ပြုလုပ်ပါ!', 'success');
+    }
+}
+
+// =====================================================================
+// INIT
+// =====================================================================
+document.addEventListener('DOMContentLoaded', () => {
+    // Set Telegram theme colors if available
+    if (tg?.colorScheme === 'dark') document.documentElement.style.setProperty('--bg', '#09090f');
+
+    loadUser();
+
+    // Refresh user data every 30 seconds
+    setInterval(loadUser, 30000);
+});
+</script>
 </body>
 </html>
