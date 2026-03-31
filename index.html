@@ -399,16 +399,27 @@
     <!-- Steps -->
     <div class="bg-purple-50 rounded-xl p-3 border border-purple-100 text-xs text-gray-600 mm mb-4 space-y-1.5 leading-relaxed">
       <div>1️⃣ အထက်ပါ KPay / WavePay နံပါတ်သို့ ငွေလွှဲပါ</div>
-      <div>2️⃣ ငွေလွှဲပြီးနောက် Bot ထဲ screenshot ပေးပို့ပါ</div>
+      <div>2️⃣ ငွေလွှဲပြီးနောက် <strong class="text-purple-700">အောက်မှ ပုံရိုက်ကာ တင်ပါ</strong> (Bot ထဲ မသွားရ)</div>
       <div>3️⃣ Admin စစ်ဆေးပြီး <strong class="text-purple-700">10 မိနစ်ကို 300 ကျပ်</strong> ရရှိမည်</div>
-      <div class="text-purple-600 font-semibold">⚠️ App မပိတ်ပါနဲ့ — Telegram ပြင်ပမှာ ရှိနေပါ မိုင်နာ Auto အလုပ်လုပ်နေမည်</div>
+    </div>
+
+    <!-- Screenshot Upload Area -->
+    <div id="screenshotUploadArea" class="border-2 border-dashed border-purple-200 rounded-xl p-4 mb-3 text-center cursor-pointer bg-purple-50/50 hover:bg-purple-50 transition-all" onclick="document.getElementById('screenshotFileInput').click()">
+      <input type="file" id="screenshotFileInput" accept="image/*" style="display:none" onchange="onScreenshotSelected(event)">
+      <div id="uploadPlaceholder">
+        <i class="fas fa-cloud-upload-alt text-purple-400 text-2xl mb-1"></i>
+        <p class="text-xs text-purple-600 font-semibold">ငွေလွှဲပြီးသော Screenshot တင်ပါ</p>
+        <p class="text-[10px] text-gray-400 mt-0.5">ဓာတ်ပုံ နှိပ်ပြီး ရွေးချယ်ပါ</p>
+      </div>
+      <img id="screenshotPreview" style="display:none;max-height:120px;margin:0 auto;border-radius:8px;object-fit:contain;" alt="preview">
     </div>
 
     <div class="flex gap-2.5">
       <button onclick="closePurchaseModal()" class="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-sm font-semibold">မလုပ်တော့</button>
-      <button onclick="openBotForScreenshot()" id="confirmPurchaseBtn"
+      <button onclick="submitMinerPurchase()" id="confirmPurchaseBtn"
               class="flex-[2] py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white text-sm font-bold ripple shadow-md flex items-center justify-center gap-1.5">
-        <i class="fas fa-camera text-xs"></i> Screenshot ပို့မည်
+        <i class="fas fa-paper-plane text-xs"></i>
+        <span id="confirmPurchaseTxt">Screenshot ပို့မည်</span>
       </button>
     </div>
   </div>
@@ -676,36 +687,75 @@ function startMinerTimers() {
 // ====================================================
 // Purchase Modal
 // ====================================================
+let screenshotFile = null;
+
 function openPurchaseModal(slot) {
   pendingSlot = slot;
+  screenshotFile = null;
   document.getElementById('purchaseModalSub').textContent = `Slot #${slot} — မိုင်နာ ${MINER_LABELS[slot-1]}`;
+  // Reset upload UI
+  document.getElementById('uploadPlaceholder').style.display = 'block';
+  document.getElementById('screenshotPreview').style.display = 'none';
+  document.getElementById('screenshotFileInput').value = '';
+  document.getElementById('confirmPurchaseTxt').textContent = 'Screenshot ပို့မည်';
+  document.getElementById('confirmPurchaseBtn').disabled = false;
   const m = document.getElementById('purchaseModal');
   m.style.display = 'flex'; m.classList.add('flex');
 }
 function closePurchaseModal() {
   const m = document.getElementById('purchaseModal');
-  m.style.display = 'none'; pendingSlot = null;
+  m.style.display = 'none'; pendingSlot = null; screenshotFile = null;
 }
-async function openBotForScreenshot() {
+
+function onScreenshotSelected(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  screenshotFile = file;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const preview = document.getElementById('screenshotPreview');
+    const placeholder = document.getElementById('uploadPlaceholder');
+    preview.src = ev.target.result;
+    preview.style.display = 'block';
+    placeholder.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitMinerPurchase() {
   if (!pendingSlot) return;
-  // First register the purchase request on server
+  if (!screenshotFile) { showToast('❌ Screenshot ပုံ တင်ပါ', 'error'); return; }
+
+  const btn = document.getElementById('confirmPurchaseBtn');
+  const txt = document.getElementById('confirmPurchaseTxt');
+  btn.disabled = true;
+  txt.textContent = 'တင်နေသည်...';
+
   try {
-    await api('POST', '/miners/purchase', { slotIndex: pendingSlot });
+    const fd = new FormData();
+    fd.append('slotIndex', pendingSlot);
+    fd.append('screenshot', screenshotFile);
+
+    const res = await fetch(API_BASE + '/miners/purchase', {
+      method: 'POST',
+      headers: { 'X-Telegram-Init-Data': initData },
+      body: fd
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'တင်မရပါ');
+
+    closePurchaseModal();
+    showToast('✅ Screenshot Admin ထံ ပို့ပြီးပါပြီ! စစ်ဆေးပြီး Activate ပေးပါမည်', 'success');
+    await loadUser();
   } catch (e) {
-    // Might already be pending — that's ok
+    showToast('❌ ' + e.message, 'error');
+    btn.disabled = false;
+    txt.textContent = 'Screenshot ပို့မည်';
   }
-  closePurchaseModal();
-  showToast('✅ Bot ထဲ screenshot ပေးပို့ပါ!', 'success');
-  // Open bot chat so user can send screenshot
-  if (tg?.openTelegramLink) {
-    tg.openTelegramLink(`https://t.me/Freeeemoneyyy_bot?text=မိုင်နာ Slot %23${pendingSlot || 1} ငွေပေးချေမှု screenshot`);
-  }
-  await loadUser();
 }
-// Keep old confirmPurchase for backward compat
-async function confirmPurchase() {
-  await openBotForScreenshot();
-}
+// Keep backward compat
+async function openBotForScreenshot() { await submitMinerPurchase(); }
+async function confirmPurchase()      { await submitMinerPurchase(); }
 
 async function collectEarnings() {
   try {
