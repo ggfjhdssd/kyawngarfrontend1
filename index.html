@@ -431,6 +431,68 @@
   </div>
 </div>
 
+<!-- ===== FEE VERIFICATION MODAL ===== -->
+<div id="feeModal" class="fixed inset-0 z-[80] hidden items-end justify-center" style="background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);">
+  <div class="bg-white rounded-t-2xl p-5 w-full max-w-md">
+    <div class="text-base font-extrabold text-gray-800 mb-1">📋 ကြေးကောက်ခ Verification</div>
+    <div class="text-xs text-gray-500 mb-3 mm">ငွေထုတ်ခြင်းမပြုမီ ကြေးပေးပြီးကြောင်း စစ်ဆေးရပါမည်</div>
+
+    <!-- Fee Info -->
+    <div class="bg-red-50 rounded-xl p-3 border border-red-200 mb-3 text-xs mm space-y-1.5">
+      <div class="font-bold text-red-700 flex items-center gap-1.5"><i class="fas fa-exclamation-triangle"></i> ကြေးပေးချေနည်း</div>
+      <div class="text-gray-600">ငွေထုတ်ခြင်းအတွက် ကြေး <strong class="text-red-700">2,000 ကျပ်</strong> ကိုအရင်ပေးပါ</div>
+      <div class="bg-white rounded-lg p-2 border border-red-100 space-y-1">
+        <div class="font-bold text-gray-700">🌊 Wave Money</div>
+        <div class="text-gray-600">နံပါတ် : <strong class="text-purple-700 select-all">09790611406</strong></div>
+        <div class="text-gray-600">အမည် : <strong>Aye Thandar</strong></div>
+      </div>
+      <div class="text-[10px] text-gray-500 italic">ကြေးပေးပြီးနောက် Screenshot တင်ပါ။ Admin စစ်ဆေးပြီး ငွေထုတ်ပေးပါမည်</div>
+    </div>
+
+    <!-- Screenshot Upload -->
+    <div id="feeUploadArea" class="border-2 border-dashed border-red-200 rounded-xl p-4 mb-3 text-center cursor-pointer bg-red-50/50 hover:bg-red-50 transition-all" onclick="document.getElementById('feeFileInput').click()">
+      <input type="file" id="feeFileInput" accept="image/*" style="display:none" onchange="onFeeScreenshotSelected(event)">
+      <div id="feePlaceholder">
+        <i class="fas fa-cloud-upload-alt text-red-400 text-2xl mb-1"></i>
+        <p class="text-xs text-red-600 font-semibold">ကြေးပေးပြီးသော Screenshot တင်ပါ</p>
+        <p class="text-[10px] text-gray-400 mt-0.5">ဓာတ်ပုံ နှိပ်ပြီး ရွေးချယ်ပါ</p>
+      </div>
+      <img id="feePreview" style="display:none;max-height:120px;margin:0 auto;border-radius:8px;object-fit:contain;" alt="preview">
+    </div>
+
+    <div class="flex gap-2.5">
+      <button onclick="closeFeeModal()" class="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-sm font-semibold">မလုပ်တော့</button>
+      <button onclick="submitWithdrawWithFee()" id="feeSubmitBtn"
+              class="flex-[2] py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-bold ripple shadow-md flex items-center justify-center gap-1.5">
+        <i class="fas fa-paper-plane text-xs"></i>
+        <span id="feeSubmitTxt">ကြေး Screenshot ပို့မည်</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VPN WARNING MODAL ===== -->
+<div id="vpnModal" class="fixed inset-0 z-[90] hidden items-center justify-center" style="background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);">
+  <div class="bg-white rounded-2xl p-5 w-full max-w-xs mx-4 text-center">
+    <div class="text-4xl mb-3">🔒</div>
+    <div class="text-base font-extrabold text-gray-800 mb-2">VPN ဖွင့်ထားပါ!</div>
+    <p class="text-xs text-gray-600 mm mb-3 leading-relaxed">
+      ကြော်ငြာကြည့်ရှုရန် <strong class="text-purple-700">VPN ဖွင့်ထားရပါမည်</strong><br>
+      Myanmar တွင် ကြော်ငြာများ မပြသပါ<br><br>
+      <span class="text-[11px] text-gray-500">VPN ဖွင့်ပြီးမှ ထပ်ကြိုးစားပါ 🙏</span>
+    </p>
+    <div class="bg-amber-50 rounded-xl p-2.5 mb-4 text-left text-[11px] text-gray-600 space-y-1">
+      <div class="font-bold text-amber-700">📱 အကြံပြုသော VPN Apps:</div>
+      <div>• 1.1.1.1 (Cloudflare WARP)</div>
+      <div>• Psiphon Pro</div>
+      <div>• Lantern</div>
+    </div>
+    <button onclick="closeVpnModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white text-sm font-bold">
+      နားလည်ပါပြီ
+    </button>
+  </div>
+</div>
+
 <!-- ===== TOAST ===== -->
 <div id="toastEl" class="fixed top-20 left-1/2 -translate-x-1/2 z-[90] transition-all duration-300 opacity-0 pointer-events-none">
   <div class="bg-gray-900/90 backdrop-blur-md text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-xl flex items-center gap-2 text-xs sm:text-sm font-medium border border-white/20 whitespace-nowrap">
@@ -855,15 +917,40 @@ function getAdCtrl(taskId) {
   return adControllers[blockId];
 }
 
+function closeVpnModal() {
+  document.getElementById('vpnModal').style.display = 'none';
+}
+
+async function checkMyanmarLocation() {
+  try {
+    const r = await fetch('https://ipapi.co/json/', { timeout: 5000 });
+    const d = await r.json();
+    return d.country_code === 'MM';
+  } catch { return false; }
+}
+
 async function watchAd(taskId) {
   const btn = document.getElementById('taskBtn-' + taskId);
   if (btn) { btn.disabled = true; btn.querySelector('span').textContent = 'loading...'; }
+
+  // Check if Myanmar location — block ad
+  try {
+    const isMM = await checkMyanmarLocation();
+    if (isMM) {
+      // Show VPN modal and block
+      document.getElementById('vpnModal').style.display = 'flex';
+      if (btn) { btn.disabled = false; btn.querySelector('span').textContent = 'ကြည့်မည်'; }
+      return;
+    }
+  } catch { /* ignore geo check errors */ }
+
   try {
     const ctrl = getAdCtrl(taskId);
     if (ctrl) await ctrl.show();
     await claimTask(taskId);
   } catch (e) {
-    showToast('ကြော်ငြာ မကြည့်ရသေးပါ', 'error');
+    // If ad fails, suggest VPN
+    showToast('❌ VPN ဖွင့်ပြီး ထပ်ကြိုးစားပါ 🔒', 'error');
     if (btn) { btn.disabled = false; btn.querySelector('span').textContent = 'ကြည့်မည်'; }
   }
 }
@@ -907,27 +994,84 @@ function updateWdBalance() {
   document.getElementById('wdBalanceDisplay').textContent = fmtNum(userData?.balance || 0) + ' ကျပ်';
 }
 
-async function submitWithdraw() {
+// Fee modal state
+let feeScreenshotFile = null;
+let pendingWdData = null;
+
+function submitWithdraw() {
   const amount = document.getElementById('wdAmount').value;
   const acNum  = document.getElementById('wdAccNum').value.trim();
   const acName = document.getElementById('wdAccName').value.trim();
-  const btn    = document.getElementById('wdSubmitBtn');
-  if (!amount || Number(amount) < 50000)             { showToast('❌ အနည်းဆုံး 50,000 ကျပ် ထုတ်ရပါမည်', 'error'); return; }
-  if (!acNum)                                        { showToast('❌ အကောင့်နံပါတ် ထည့်ပါ', 'error'); return; }
-  if (Number(amount) > (userData?.balance || 0))     { showToast('❌ လက်ကျန်ငွေ မလောက်ပါ', 'error'); return; }
+  if (!amount || Number(amount) < 50000)         { showToast('❌ အနည်းဆုံး 50,000 ကျပ် ထုတ်ရပါမည်', 'error'); return; }
+  if (!acNum)                                    { showToast('❌ အကောင့်နံပါတ် ထည့်ပါ', 'error'); return; }
+  if (Number(amount) > (userData?.balance || 0)) { showToast('❌ လက်ကျန်ငွေ မလောက်ပါ', 'error'); return; }
+
+  // Store pending data and open fee modal
+  pendingWdData = { amount: Number(amount), method: selectedMethod, accountNumber: acNum, accountName: acName };
+  feeScreenshotFile = null;
+  document.getElementById('feePlaceholder').style.display = 'block';
+  document.getElementById('feePreview').style.display = 'none';
+  document.getElementById('feeFileInput').value = '';
+  document.getElementById('feeSubmitTxt').textContent = 'ကြေး Screenshot ပို့မည်';
+  document.getElementById('feeSubmitBtn').disabled = false;
+  const m = document.getElementById('feeModal');
+  m.style.display = 'flex'; m.classList.add('flex');
+}
+
+function closeFeeModal() {
+  document.getElementById('feeModal').style.display = 'none';
+  feeScreenshotFile = null; pendingWdData = null;
+}
+
+function onFeeScreenshotSelected(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  feeScreenshotFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('feePlaceholder').style.display = 'none';
+    document.getElementById('feePreview').src = e.target.result;
+    document.getElementById('feePreview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitWithdrawWithFee() {
+  if (!feeScreenshotFile) { showToast('❌ ကြေး Screenshot တင်ပါ', 'error'); return; }
+  if (!pendingWdData)     { closeFeeModal(); return; }
+
+  const btn = document.getElementById('feeSubmitBtn');
   btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>တောင်းဆိုနေသည်...';
+  document.getElementById('feeSubmitTxt').textContent = 'တောင်းဆိုနေသည်...';
+
   try {
-    const res = await api('POST', '/withdraw', { amount: Number(amount), method: selectedMethod, accountNumber: acNum, accountName: acName });
+    const fd = new FormData();
+    fd.append('amount',         pendingWdData.amount);
+    fd.append('method',         pendingWdData.method);
+    fd.append('accountNumber',  pendingWdData.accountNumber);
+    fd.append('accountName',    pendingWdData.accountName || '');
+    fd.append('feeScreenshot',  feeScreenshotFile, feeScreenshotFile.name);
+
+    const r = await fetch(API_BASE + '/withdraw', {
+      method: 'POST',
+      headers: { 'X-Telegram-Init-Data': tg?.initData || '' },
+      body: fd
+    });
+    const res = await r.json();
+    if (!r.ok) throw new Error(res.error || 'Error');
+
     userData.balance = res.newBalance;
     document.getElementById('balanceDisplay').textContent = fmtNum(res.newBalance);
-    document.getElementById('wdAmount').value = ''; document.getElementById('wdAccNum').value = ''; document.getElementById('wdAccName').value = '';
+    document.getElementById('wdAmount').value = '';
+    document.getElementById('wdAccNum').value = '';
+    document.getElementById('wdAccName').value = '';
     updateWdBalance();
-    showToast('✅ ငွေထုတ်တောင်းဆိုမှု ပြည့်ပြီ!', 'success');
+    closeFeeModal();
+    showToast('✅ ငွေထုတ်တောင်းဆိုမှု ပြည့်ပြီ! Admin စစ်ဆေးပါမည်', 'success');
   } catch (e) {
     showToast('❌ ' + e.message, 'error');
-  } finally {
-    btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>ထုတ်ယူမည်';
+    btn.disabled = false;
+    document.getElementById('feeSubmitTxt').textContent = 'ကြေး Screenshot ပို့မည်';
   }
 }
 
