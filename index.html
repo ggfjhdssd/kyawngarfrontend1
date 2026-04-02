@@ -566,6 +566,21 @@ const initData   = tg?.initData || '';
 const tgUser     = tg?.initDataUnsafe?.user || null;
 const startParam = tg?.initDataUnsafe?.start_param || '';
 
+// ── VPN Gate: redirect to /vpn-check if not already there ──
+(async function vpnGate() {
+  try {
+    const r = await fetch('/api/check-vpn', {
+      headers: { 'X-Telegram-Init-Data': initData || '' }
+    });
+    const d = await r.json();
+    if (!d.allowed && !d.isAdmin) {
+      window.location.replace('/vpn-check');
+    }
+  } catch (e) {
+    // On error, allow through (fail open)
+  }
+})();
+
 let userData = null, selectedMethod = 'kpay', pendingSlot = null;
 let adControllers = {}, minerTimers = {}, taskTimerInterval = null, toastTimer = null;
 

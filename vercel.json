@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/vpn-check", "destination": "/vpn-check.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [

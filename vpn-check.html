@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Security Check • Kyawngar</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+Myanmar:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', 'Noto Sans Myanmar', sans-serif;
+      background: linear-gradient(145deg, #f5f3ff 0%, #fae8ff 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .mm { font-family: 'Noto Sans Myanmar', 'Inter', sans-serif; line-height: 1.7; }
+
+    /* Ripple effect */
+    .ripple { position: relative; overflow: hidden; }
+    .ripple:after {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 100%; height: 100%;
+      top: 0; left: 0;
+      pointer-events: none;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.35) 10%, transparent 10%);
+      background-repeat: no-repeat;
+      background-position: 50%;
+      transform: scale(10); opacity: 0;
+      transition: transform 0.4s, opacity 0.6s;
+    }
+    .ripple:active:after { transform: scale(0); opacity: 0.4; transition: 0s; }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Lock icon pulse */
+    .lock-pulse {
+      animation: lockPulse 2s ease-in-out infinite;
+    }
+    @keyframes lockPulse {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(168,85,247,0.3)); }
+      50% { transform: scale(1.06); filter: drop-shadow(0 0 16px rgba(168,85,247,0.5)); }
+    }
+
+    /* Success checkmark bounce */
+    .success-bounce {
+      animation: bounce 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    }
+    @keyframes bounce {
+      0%,100% { transform: scale(1); }
+      30% { transform: scale(1.2); }
+      60% { transform: scale(0.95); }
+    }
+
+    /* Fade in */
+    .fade-in {
+      animation: fadeIn 0.4s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hidden { display: none !important; }
+    .btn-active:active { transform: scale(0.98); }
+  </style>
+</head>
+<body>
+
+<div class="bg-white rounded-2xl shadow-xl border border-purple-100 w-full max-w-sm p-6 fade-in">
+
+  <!-- Loading State -->
+  <div id="loadingState" class="text-center py-8">
+    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-50 flex items-center justify-center">
+      <div class="spinner" style="width:28px;height:28px;border-color:rgba(168,85,247,0.3);border-top-color:#a855f7;"></div>
+    </div>
+    <p class="text-gray-500 text-sm mm">စစ်ဆေးနေသည်...</p>
+  </div>
+
+  <!-- VPN Warning State -->
+  <div id="vpnWarningState" class="hidden text-center">
+
+    <!-- Lock Icon -->
+    <div class="mb-4">
+      <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-purple-50 to-fuchsia-50 border-2 border-purple-100 flex items-center justify-center lock-pulse">
+        <i class="fa-solid fa-lock text-4xl text-purple-500"></i>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <h1 class="text-gray-800 font-extrabold text-xl mb-2 mm">VPN ဖွင့်ထားပါ!</h1>
+
+    <!-- Description -->
+    <p class="text-gray-600 text-sm leading-relaxed mm mb-5">
+      အက်ပ်ကို အသုံးပြုရန် VPN ဖွင့်ထားရပါမည်။<br>
+      Myanmar တွင် အသုံးပြုခွင့် မရပါ။<br>
+      VPN ဖွင့်ပြီးမှ ထပ်ကြိုးစားပါ 🙏
+    </p>
+
+    <!-- Recommended VPNs Box -->
+    <div class="bg-amber-50 rounded-xl p-3 border border-amber-100 mb-5 text-left">
+      <p class="text-amber-700 font-semibold text-xs mb-2 mm flex items-center gap-1">
+        <i class="fa-solid fa-star text-amber-500"></i> အကြံပြုသော VPN များ
+      </p>
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2 text-sm text-amber-800">
+          <span class="w-5 h-5 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-600">1</span>
+          <span class="mm font-medium">1.1.1.1 (Cloudflare WARP)</span>
+          <span class="ml-auto text-xs bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full font-semibold">Free</span>
+        </div>
+        <div class="flex items-center gap-2 text-sm text-amber-800">
+          <span class="w-5 h-5 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-600">2</span>
+          <span class="mm font-medium">Psiphon Pro</span>
+          <span class="ml-auto text-xs bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full font-semibold">Free</span>
+        </div>
+        <div class="flex items-center gap-2 text-sm text-amber-800">
+          <span class="w-5 h-5 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-600">3</span>
+          <span class="mm font-medium">Lantern</span>
+          <span class="ml-auto text-xs bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full font-semibold">Free</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Location Badge -->
+    <div class="flex items-center justify-center gap-2 mb-5">
+      <div class="bg-red-50 border border-red-100 rounded-full px-4 py-1.5 flex items-center gap-2">
+        <i class="fa-solid fa-location-dot text-red-400 text-xs"></i>
+        <span class="text-red-500 text-xs font-semibold mm" id="locationBadge">Myanmar (MM)</span>
+        <span class="text-red-400 text-xs">❌</span>
+      </div>
+    </div>
+
+    <!-- Retry Button -->
+    <button id="retryBtn"
+      onclick="checkVPN()"
+      class="w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white font-bold py-3 rounded-xl shadow-md ripple btn-active flex items-center justify-center gap-2 transition-all">
+      <span id="btnText" class="mm">ပြန်လည် စစ်ဆေးမည်</span>
+    </button>
+  </div>
+
+  <!-- Success / Admin State -->
+  <div id="successState" class="hidden text-center">
+    <div class="mb-4">
+      <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-100 flex items-center justify-center success-bounce" id="successIcon">
+        <i class="fa-solid fa-check text-4xl text-green-500"></i>
+      </div>
+    </div>
+    <h1 class="text-gray-800 font-extrabold text-xl mb-2 mm" id="successTitle">အောင်မြင်ပါသည်!</h1>
+    <p class="text-gray-500 text-sm mm mb-4" id="successDesc">ဝင်ရောက်နေသည်...</p>
+    <div class="flex items-center justify-center gap-2">
+      <div class="spinner" style="border-color:rgba(168,85,247,0.3);border-top-color:#a855f7;"></div>
+      <span class="text-purple-500 text-sm mm">Loading...</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.expand();
+    tg.ready();
+    tg.setHeaderColor('#f5f3ff');
+    tg.setBackgroundColor('#f5f3ff');
+  }
+
+  const BACKEND_URL = window.BACKEND_URL || '';
+
+  async function checkVPN() {
+    // Show loading in button if retry
+    const retryBtn = document.getElementById('retryBtn');
+    const btnText  = document.getElementById('btnText');
+    if (retryBtn && !retryBtn.classList.contains('hidden')) {
+      retryBtn.disabled = true;
+      btnText.innerHTML = '<span class="spinner mr-1"></span><span class="mm">စစ်ဆေးနေသည်...</span>';
+    }
+
+    // Show loading state on first load
+    showState('loading');
+
+    try {
+      const res  = await fetch(`${BACKEND_URL}/api/check-vpn`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Telegram-Init-Data': tg?.initData || ''
+        }
+      });
+      const data = await res.json();
+
+      // Admin bypass — always allow regardless of country
+      if (data.isAdmin === true) {
+        showSuccessState('Admin Access 👑', 'Admin အနေဖြင့် ဝင်ခွင့်ပြုသည်');
+        setTimeout(() => { window.location.href = '/'; }, 1500);
+        return;
+      }
+
+      // Country check: block only MM
+      if (data.countryCode === 'MM' || !data.allowed) {
+        showVpnWarning(data.country || 'Myanmar');
+        return;
+      }
+
+      // Non-MM country = allowed (VPN connected)
+      showSuccessState('VPN ချိတ်ဆက်ထားသည် ✅', `${data.country || data.countryCode} — ဝင်ရောက်နေသည်...`);
+      setTimeout(() => { window.location.href = '/'; }, 1500);
+
+    } catch (err) {
+      console.error('VPN check error:', err);
+      showVpnWarning('Unknown');
+    }
+  }
+
+  function showState(state) {
+    document.getElementById('loadingState').classList.add('hidden');
+    document.getElementById('vpnWarningState').classList.add('hidden');
+    document.getElementById('successState').classList.add('hidden');
+    if (state === 'loading')  document.getElementById('loadingState').classList.remove('hidden');
+    if (state === 'warning')  document.getElementById('vpnWarningState').classList.remove('hidden');
+    if (state === 'success')  document.getElementById('successState').classList.remove('hidden');
+  }
+
+  function showVpnWarning(country) {
+    document.getElementById('locationBadge').textContent = `${country}`;
+    const retryBtn = document.getElementById('retryBtn');
+    const btnText  = document.getElementById('btnText');
+    retryBtn.disabled = false;
+    btnText.innerHTML = 'ပြန်လည် စစ်ဆေးမည်';
+    showState('warning');
+  }
+
+  function showSuccessState(title, desc) {
+    document.getElementById('successTitle').textContent = title;
+    document.getElementById('successDesc').textContent  = desc;
+    showState('success');
+  }
+
+  // Auto-check on page load
+  window.addEventListener('load', checkVPN);
+</script>
+</body>
+</html>
